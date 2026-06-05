@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AsalSI WebGIS</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark">AS</div>
+      <div class="brand-logo">AsalSI WebGIS</div>
+      <div class="brand-subtitle">Pembangunan WebGIS untuk Pemetaan Persebaran Daerah Asal Mahasiswa Program Studi Sistem Informasi Universitas Andalas</div>
+    </div>
+    <div class="topbar-actions">
+      <span class="topbar-chip">Universitas Andalas</span>
+      <span class="topbar-chip">Data 2021-2025</span>
+    </div>
+  </header>
+
+  <main class="webgis-layout">
+    <aside class="app-sidebar">
+      <section class="panel hero-panel">
+        <span class="eyebrow">Sistem Informasi Unand</span>
+        <h1>Analisis Persebaran Asal Mahasiswa</h1>
+        <p>Pilih modul kerja untuk melihat dashboard statistik atau peta persebaran spasial.</p>
+      </section>
+
+      <nav class="module-nav" aria-label="Menu utama WebGIS">
+        <button id="dashboard-menu" class="module-button active" type="button" data-view="dashboard">
+          <b>01</b>
+          <span>Dashboard</span>
+          <small>Visualisasi analitik multidimensi</small>
+        </button>
+        <button id="map-menu" class="module-button" type="button" data-view="map">
+          <b>02</b>
+          <span>Peta Persebaran</span>
+          <small>Marker, heatmap, filter, dan info titik</small>
+        </button>
+      </nav>
+    </aside>
+
+    <section id="dashboard-view" class="content-view dashboard-view active" aria-label="Dashboard analitik">
+      <div class="content-header">
+        <div>
+          <span class="eyebrow">Dashboard Analitik</span>
+          <h2>Visualisasi Multidimensi Mahasiswa</h2>
+          <p>Ringkasan data, tren angkatan, dan ranking asal sekolah berdasarkan data mahasiswa Program Studi Sistem Informasi Universitas Andalas.</p>
+        </div>
+        <span id="data-status" class="status-pill">Memuat</span>
+      </div>
+
+      <div class="metric-grid dashboard-metrics">
+        <article class="metric-card">
+          <span>Total Mahasiswa</span>
+          <strong id="total-mahasiswa">0</strong>
+          <small>Data asal sekolah terpetakan</small>
+        </article>
+        <article class="metric-card">
+          <span>Angkatan Aktif</span>
+          <strong id="total-angkatan">0</strong>
+          <small>Rentang data mahasiswa</small>
+        </article>
+      </div>
+
+      <div class="dashboard-grid">
+        <section class="panel dashboard-card">
+          <div class="section-title">Tren Per Angkatan</div>
+          <div id="trend-chart" class="trend-list trend-list-large"></div>
+        </section>
+
+        <section class="panel dashboard-card">
+          <div class="section-title">Ranking Asal Sekolah</div>
+          <ol id="ranking-list" class="ranking-list ranking-list-large"></ol>
+        </section>
+      </div>
+    </section>
+
+    <section id="map-view" class="content-view map-view" aria-label="Peta persebaran asal mahasiswa">
+      <aside class="map-control-panel">
+        <section class="filter-section">
+          <h2>Filter Data</h2>
+
+          <label for="angkatan">Angkatan</label>
+          <select id="angkatan" name="angkatan">
+            <option value="">Semua Angkatan</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+          </select>
+
+          <fieldset class="jalur-filter">
+            <legend>Jalur Penerimaan</legend>
+            <label>
+              <input type="checkbox" name="jalur" value="SNBP" checked>
+              <span>SNBP</span>
+            </label>
+            <label>
+              <input type="checkbox" name="jalur" value="SNBT" checked>
+              <span>SNBT</span>
+            </label>
+            <label>
+              <input type="checkbox" name="jalur" value="Mandiri" checked>
+              <span>Mandiri</span>
+            </label>
+          </fieldset>
+        </section>
+
+        <section class="view-section">
+          <h2>Tampilan Peta</h2>
+          <div class="view-toggle" role="group" aria-label="Toggle tampilan peta">
+            <button id="marker-view" class="active" type="button">Marker View</button>
+            <button id="heatmap-view" type="button">Heatmap View</button>
+          </div>
+        </section>
+
+        <section id="info-panel" class="info-panel">
+          <h2>Info Mahasiswa</h2>
+          <p>Klik marker pada peta untuk melihat detail mahasiswa.</p>
+        </section>
+      </aside>
+
+      <section class="map-area">
+        <div class="map-toolbar">
+          <div>
+            <span class="eyebrow">OpenStreetMap Layer</span>
+            <strong id="map-title">Marker View</strong>
+          </div>
+          <div class="legend">
+            <span><i class="legend-dot snbp"></i>SNBP</span>
+            <span><i class="legend-dot snbt"></i>SNBT</span>
+            <span><i class="legend-dot mandiri"></i>Mandiri</span>
+          </div>
+        </div>
+        <div id="map"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
