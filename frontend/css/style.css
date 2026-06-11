@@ -35,6 +35,15 @@ body {
     linear-gradient(180deg, #f8fafc 0%, var(--page) 100%);
 }
 
+.auth-locked {
+  overflow: hidden;
+}
+
+.auth-locked .app-header,
+.auth-locked .webgis-layout {
+  display: none;
+}
+
 .app-header {
   height: 82px;
   padding: 14px 26px;
@@ -103,6 +112,34 @@ body {
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.topbar-button,
+.primary-action,
+.secondary-action {
+  min-height: 39px;
+  padding: 9px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.topbar-button,
+.secondary-action {
+  border: 1px solid var(--line);
+  color: var(--green-800);
+  background: #ffffff;
+}
+
+.primary-action {
+  border: 1px solid var(--green-700);
+  color: #ffffff;
+  background: var(--green-700);
+  box-shadow: 0 10px 20px rgba(4, 120, 87, 0.18);
+}
+
+.hidden {
+  display: none !important;
 }
 
 .webgis-layout {
@@ -227,6 +264,11 @@ body {
   padding: 26px;
 }
 
+.admin-view {
+  overflow-y: auto;
+  padding: 26px;
+}
+
 .content-header {
   position: relative;
   overflow: hidden;
@@ -301,6 +343,10 @@ body {
 
 .dashboard-metrics {
   margin-bottom: 20px;
+}
+
+.admin-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .metric-card {
@@ -444,6 +490,160 @@ body {
   grid-template-columns: 320px 1fr;
 }
 
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.85fr) minmax(360px, 1.15fr);
+  gap: 20px;
+}
+
+.admin-card,
+.admin-table-card {
+  min-width: 0;
+}
+
+.admin-form {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--ink-700);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-table-actions input {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink-900);
+  background: #ffffff;
+  font: inherit;
+  font-weight: 700;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-hint,
+.admin-message {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.jalur-summary {
+  margin: -6px 0 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.jalur-summary span,
+.jalur-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-700);
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-table-card {
+  margin-top: 20px;
+}
+
+.admin-table-toolbar {
+  margin-bottom: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.admin-table-actions {
+  width: min(420px, 100%);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.table-scroll {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 13px;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table th {
+  color: var(--ink-500);
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.admin-table td {
+  color: var(--ink-700);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.login-modal {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.54);
+  backdrop-filter: blur(8px);
+}
+
+.login-dialog {
+  width: min(420px, 100%);
+  padding: 22px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.26);
+}
+
+.login-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .map-control-panel {
   overflow-y: auto;
   padding: 18px;
@@ -473,18 +673,33 @@ body {
   font-weight: 850;
 }
 
+.filter-section input[type="search"],
 .filter-section select,
 .view-toggle button {
   min-height: 42px;
   padding: 9px 11px;
 }
 
+.filter-section input[type="search"],
 .filter-section select {
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--ink-900);
   background: #ffffff;
   font-weight: 700;
+}
+
+.filter-section input[type="search"]::placeholder {
+  color: var(--ink-500);
+  font-weight: 600;
+}
+
+.filter-result-count {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
 }
 
 .jalur-filter {
@@ -608,6 +823,10 @@ body {
   background: var(--orange-500);
 }
 
+.legend-dot.khusus {
+  background: #7c3aed;
+}
+
 #map {
   width: 100%;
   height: 100%;
@@ -652,8 +871,20 @@ body {
   }
 
   .dashboard-grid,
+  .admin-grid,
   .map-view.active {
     grid-template-columns: 1fr;
+  }
+
+  .admin-metrics,
+  .form-row,
+  .admin-table-toolbar,
+  .admin-table-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-table-toolbar {
+    display: grid;
   }
 
   .map-area {

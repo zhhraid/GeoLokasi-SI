@@ -1,20 +1,35 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const { jalurMasukSql } = require("../mahasiswa-utils");
 
 function buildMahasiswaFilters(query) {
   const filters = [];
   const values = [];
 
   if (query.angkatan) {
-    filters.push("angkatan = ?");
     values.push(query.angkatan);
+    filters.push(`angkatan = $${values.length}`);
   }
 
   if (query.jalur) {
     const jalurValues = Array.isArray(query.jalur) ? query.jalur : [query.jalur];
-    filters.push(`(jalur_masuk IN (${jalurValues.map(() => "?").join(", ")}) OR jalur_masuk IS NULL)`);
-    values.push(...jalurValues);
+    const placeholders = jalurValues.map((jalur) => {
+      values.push(jalur);
+      return `$${values.length}`;
+    });
+
+    filters.push(`${jalurMasukSql} IN (${placeholders.join(", ")})`);
+  }
+
+  if (query.search) {
+    values.push(`%${query.search.trim()}%`);
+    filters.push(`(
+      nama_lengkap ILIKE $${values.length}
+      OR no_bp ILIKE $${values.length}
+      OR asal_sekolah ILIKE $${values.length}
+      OR ${jalurMasukSql} ILIKE $${values.length}
+    )`);
   }
 
   return {
@@ -26,10 +41,10 @@ function buildMahasiswaFilters(query) {
 router.get("/", async (req, res) => {
   try {
     const { whereClause, values } = buildMahasiswaFilters(req.query);
-    const [rows] = await pool.query(
+    const result = await pool.query(
       `
         SELECT id, no_bp, angkatan, nama_lengkap, jenis_kelamin,
-               asal_sekolah, longitude, latitude, jalur_masuk
+               asal_sekolah, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
         FROM mahasiswa
         ${whereClause}
         ORDER BY angkatan DESC, nama_lengkap ASC
@@ -37,7 +52,7 @@ router.get("/", async (req, res) => {
       values
     );
 
-    res.json(rows);
+    res.json(result.rows);
   } catch (error) {
     res.status(500).json({
       message: "Gagal mengambil data mahasiswa",
@@ -49,10 +64,10 @@ router.get("/", async (req, res) => {
 router.get("/geojson", async (req, res) => {
   try {
     const { whereClause, values } = buildMahasiswaFilters(req.query);
-    const [rows] = await pool.query(
+    const result = await pool.query(
       `
         SELECT id, no_bp, angkatan, nama_lengkap, jenis_kelamin,
-               asal_sekolah, longitude, latitude, jalur_masuk
+               asal_sekolah, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
         FROM mahasiswa
         ${whereClause}
         WHERE longitude IS NOT NULL AND latitude IS NOT NULL
@@ -63,7 +78,7 @@ router.get("/geojson", async (req, res) => {
 
     res.json({
       type: "FeatureCollection",
-      features: rows.map((row) => ({
+      features: result.rows.map((row) => ({
         type: "Feature",
         geometry: {
           type: "Point",
@@ -93,7 +108,7 @@ router.get("/geojson", async (req, res) => {
 router.get("/heatmap", async (req, res) => {
   try {
     const { whereClause, values } = buildMahasiswaFilters(req.query);
-    const [rows] = await pool.query(
+    const result = await pool.query(
       `
         SELECT latitude, longitude, COUNT(*) AS intensity
         FROM mahasiswa
@@ -105,7 +120,7 @@ router.get("/heatmap", async (req, res) => {
     );
 
     res.json(
-      rows.map((row) => ({
+      result.rows.map((row) => ({
         latitude: Number(row.latitude),
         longitude: Number(row.longitude),
         intensity: Number(row.intensity),

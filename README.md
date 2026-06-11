@@ -6,15 +6,28 @@ Pembangunan WebGIS untuk Pemetaan Persebaran Daerah Asal Mahasiswa Program Studi
 
 - Frontend: HTML, CSS, JavaScript, Leaflet.js
 - Backend: Express.js
-- Database: MySQL, dikelola melalui phpMyAdmin
+- Database: PostgreSQL
 - Spatial Service: OpenStreetMap dan Nominatim
 
-## Database
+## Database PostgreSQL
 
 Nama database:
 
 ```text
 asalsi_webgis
+```
+
+Salin `.env.example` menjadi `.env`, lalu isi koneksi PostgreSQL lokal:
+
+```text
+DATABASE_URL=postgres://postgres:password_postgresql_kamu@localhost:5432/webgis_si_unand
+PG_ADMIN_DB=postgres
+```
+
+Import data awal:
+
+```bash
+node backend/import-mahasiswa-csv.js
 ```
 
 ## Struktur Project

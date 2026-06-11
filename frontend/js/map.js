@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = `${window.location.origin}/api`;
 const DEFAULT_CENTER = [-0.9149, 100.4584];
 const DEFAULT_ZOOM = 6;
 
@@ -6,7 +6,9 @@ const jalurColors = {
   SNBP: "#2563eb",
   SNBT: "#16a34a",
   Mandiri: "#f97316",
+  Khusus: "#7c3aed",
 };
+const jalurOptions = Object.keys(jalurColors);
 
 let currentView = "marker";
 let heatLayer = null;
@@ -29,11 +31,13 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 map.addLayer(markerCluster);
 
 function getFilters() {
+  const search = document.getElementById("search-input").value.trim();
   const angkatan = document.getElementById("angkatan").value;
   const selectedJalur = Array.from(document.querySelectorAll('input[name="jalur"]:checked'))
     .map((input) => input.value);
 
   return {
+    search,
     angkatan,
     jalur: selectedJalur,
   };
@@ -46,9 +50,17 @@ function buildQueryString(filters) {
     params.append("angkatan", filters.angkatan);
   }
 
-  filters.jalur.forEach((jalur) => {
-    params.append("jalur", jalur);
-  });
+  if (filters.search) {
+    params.append("search", filters.search);
+  }
+
+  if (filters.jalur.length === 0) {
+    params.append("jalur", "__none__");
+  } else if (filters.jalur.length < jalurOptions.length) {
+    filters.jalur.forEach((jalur) => {
+      params.append("jalur", jalur);
+    });
+  }
 
   return params.toString();
 }
@@ -63,6 +75,7 @@ async function loadMarkers(filters = getFilters()) {
 
   const geojson = await response.json();
   markerCluster.clearLayers();
+  updateResultCount(geojson.features.length, "mahasiswa");
 
   const geojsonLayer = L.geoJSON(geojson, {
     pointToLayer: (feature, latlng) => {
@@ -118,9 +131,12 @@ async function loadHeatmap(filters = getFilters()) {
     gradient: {
       0.25: "#2563eb",
       0.55: "#16a34a",
-      0.85: "#f97316",
+      0.75: "#f97316",
+      1: "#7c3aed",
     },
   }).addTo(map);
+
+  updateResultCount(points.length, "titik heatmap");
 }
 
 function normalizeHeatmapPoints(data) {
@@ -195,6 +211,19 @@ function formatCoordinate(value) {
   return Number.isFinite(number) ? number.toFixed(6) : "-";
 }
 
+function updateResultCount(total, label) {
+  document.getElementById("filter-result-count").textContent = `${total} ${label} cocok dengan filter.`;
+}
+
+function debounce(callback, delay = 320) {
+  let timeoutId;
+
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback(...args), delay);
+  };
+}
+
 function setMapView(view) {
   currentView = view;
   document.getElementById("marker-view").classList.toggle("active", view === "marker");
@@ -223,6 +252,7 @@ function reloadActiveLayer() {
 }
 
 document.getElementById("angkatan").addEventListener("change", reloadActiveLayer);
+document.getElementById("search-input").addEventListener("input", debounce(reloadActiveLayer));
 document.querySelectorAll('input[name="jalur"]').forEach((input) => {
   input.addEventListener("change", reloadActiveLayer);
 });
@@ -230,7 +260,14 @@ document.getElementById("marker-view").addEventListener("click", () => setMapVie
 document.getElementById("heatmap-view").addEventListener("click", () => setMapView("heatmap"));
 
 document.querySelectorAll(".module-button").forEach((button) => {
-  button.addEventListener("click", () => setContentView(button.dataset.view));
+  button.addEventListener("click", () => {
+    if (button.dataset.view === "admin" && typeof window.openAdminView === "function") {
+      window.openAdminView();
+      return;
+    }
+
+    setContentView(button.dataset.view);
+  });
 });
 
 function setContentView(view) {
@@ -238,8 +275,9 @@ function setContentView(view) {
     button.classList.toggle("active", button.dataset.view === view);
   });
 
-  document.getElementById("dashboard-view").classList.toggle("active", view === "dashboard");
-  document.getElementById("map-view").classList.toggle("active", view === "map");
+  document.querySelectorAll(".content-view").forEach((contentView) => {
+    contentView.classList.toggle("active", contentView.id === `${view}-view`);
+  });
 
   if (view === "map") {
     setTimeout(() => {
@@ -252,4 +290,5 @@ function setContentView(view) {
   }
 }
 
+window.setContentView = setContentView;
 setContentView("dashboard");

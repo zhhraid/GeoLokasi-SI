@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="auth-locked">
   <header class="app-header">
     <div class="brand">
       <div class="brand-mark">AS</div>
@@ -19,6 +19,8 @@
     <div class="topbar-actions">
       <span class="topbar-chip">Universitas Andalas</span>
       <span class="topbar-chip">Data 2021-2025</span>
+      <button id="admin-login-button" class="topbar-button" type="button">Login</button>
+      <button id="admin-logout-button" class="topbar-button hidden" type="button">Logout</button>
     </div>
   </header>
 
@@ -40,6 +42,11 @@
           <b>02</b>
           <span>Peta Persebaran</span>
           <small>Marker, heatmap, filter, dan info titik</small>
+        </button>
+        <button id="admin-menu" class="module-button" type="button" data-view="admin">
+          <b>03</b>
+          <span>Admin</span>
+          <small>Import CSV, input manual, dan kelola data</small>
         </button>
       </nav>
     </aside>
@@ -85,6 +92,9 @@
         <section class="filter-section">
           <h2>Filter Data</h2>
 
+          <label for="search-input">Pencarian</label>
+          <input id="search-input" type="search" placeholder="Nama, No BP, asal sekolah, jalur">
+
           <label for="angkatan">Angkatan</label>
           <select id="angkatan" name="angkatan">
             <option value="">Semua Angkatan</option>
@@ -109,7 +119,13 @@
               <input type="checkbox" name="jalur" value="Mandiri" checked>
               <span>Mandiri</span>
             </label>
+            <label>
+              <input type="checkbox" name="jalur" value="Khusus" checked>
+              <span>Khusus</span>
+            </label>
           </fieldset>
+
+          <p id="filter-result-count" class="filter-result-count">Menunggu data peta.</p>
         </section>
 
         <section class="view-section">
@@ -136,17 +152,149 @@
             <span><i class="legend-dot snbp"></i>SNBP</span>
             <span><i class="legend-dot snbt"></i>SNBT</span>
             <span><i class="legend-dot mandiri"></i>Mandiri</span>
+            <span><i class="legend-dot khusus"></i>Khusus</span>
           </div>
         </div>
         <div id="map"></div>
       </section>
     </section>
+
+    <section id="admin-view" class="content-view admin-view" aria-label="Dashboard admin">
+      <div class="content-header">
+        <div>
+          <span class="eyebrow">Panel Admin</span>
+          <h2>Kelola Data Mahasiswa</h2>
+          <p>Import CSV, tambah data manual, dan pantau ringkasan data mahasiswa yang tersimpan di PostgreSQL.</p>
+        </div>
+        <span id="admin-status" class="status-pill">Perlu login</span>
+      </div>
+
+      <div class="metric-grid dashboard-metrics admin-metrics">
+        <article class="metric-card">
+          <span>Total Mahasiswa</span>
+          <strong id="admin-total-mahasiswa">0</strong>
+          <small>Seluruh data tersimpan</small>
+        </article>
+        <article class="metric-card">
+          <span>Data Terpetakan</span>
+          <strong id="admin-total-terpetakan">0</strong>
+          <small>Memiliki koordinat</small>
+        </article>
+        <article class="metric-card">
+          <span>Angkatan</span>
+          <strong id="admin-total-angkatan">0</strong>
+          <small>Rentang batch data</small>
+        </article>
+      </div>
+      <div id="admin-jalur-summary" class="jalur-summary"></div>
+
+      <div class="admin-grid">
+        <section class="panel admin-card">
+          <div class="section-title">Import CSV</div>
+          <form id="csv-import-form" class="admin-form">
+            <label for="csv-file">File CSV</label>
+            <input id="csv-file" type="file" accept=".csv,.txt">
+            <p class="form-hint">Kolom yang didukung: id, no_bp, angkatan, nama_lengkap, jenis_kelamin, asal_sekolah, longitude, latitude.</p>
+            <button class="primary-action" type="submit">Import CSV</button>
+          </form>
+          <p id="csv-import-status" class="admin-message">Belum ada file dipilih.</p>
+        </section>
+
+        <section class="panel admin-card">
+          <div class="section-title">Input Manual</div>
+          <form id="manual-student-form" class="admin-form manual-form">
+            <label for="manual-no-bp">No BP / NIM</label>
+            <input id="manual-no-bp" name="no_bp" required placeholder="2511521001">
+
+            <label for="manual-angkatan">Angkatan</label>
+            <input id="manual-angkatan" name="angkatan" required type="number" min="2000" max="2100" placeholder="2025">
+
+            <label for="manual-nama">Nama Lengkap</label>
+            <input id="manual-nama" name="nama_lengkap" required placeholder="Nama mahasiswa">
+
+            <label for="manual-jk">Jenis Kelamin</label>
+            <select id="manual-jk" name="jenis_kelamin" required>
+              <option value="">Pilih</option>
+              <option value="L">Laki-laki</option>
+              <option value="P">Perempuan</option>
+            </select>
+
+            <label for="manual-sekolah">Asal Sekolah</label>
+            <input id="manual-sekolah" name="asal_sekolah" required placeholder="SMAN 1 Padang">
+
+            <div class="form-row">
+              <label for="manual-latitude">
+                Latitude
+                <input id="manual-latitude" name="latitude" placeholder="-0.914900">
+              </label>
+              <label for="manual-longitude">
+                Longitude
+                <input id="manual-longitude" name="longitude" placeholder="100.458400">
+              </label>
+            </div>
+
+            <p id="manual-jalur-preview" class="form-hint">Jalur masuk otomatis dari kode No BP.</p>
+            <button class="primary-action" type="submit">Simpan Data</button>
+          </form>
+          <p id="manual-form-status" class="admin-message">Siap menambah data baru.</p>
+        </section>
+      </div>
+
+      <section class="panel admin-table-card">
+        <div class="admin-table-toolbar">
+          <div>
+            <div class="section-title">Data Mahasiswa</div>
+            <p id="admin-table-status" class="admin-message">Memuat data admin.</p>
+          </div>
+          <div class="admin-table-actions">
+            <input id="admin-search-input" type="search" placeholder="Cari nama, No BP, sekolah">
+            <button id="admin-refresh-button" class="secondary-action" type="button">Refresh</button>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>No BP</th>
+                <th>Nama</th>
+                <th>Angkatan</th>
+                <th>JK</th>
+                <th>Asal Sekolah</th>
+                <th>Jalur</th>
+                <th>Koordinat</th>
+              </tr>
+            </thead>
+            <tbody id="admin-student-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
   </main>
+
+  <div id="login-modal" class="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
+    <div class="login-dialog">
+      <div class="section-title" id="login-title">Login Aplikasi</div>
+      <form id="admin-login-form" class="admin-form">
+        <label for="admin-username">Username</label>
+        <input id="admin-username" autocomplete="username" required placeholder="user">
+
+        <label for="admin-password">Password</label>
+        <input id="admin-password" type="password" autocomplete="current-password" required placeholder="user123">
+
+        <p id="login-status" class="admin-message">Masuk untuk membuka dashboard WebGIS.</p>
+        <div class="login-actions">
+          <button class="primary-action" type="submit">Masuk</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="js/map.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/admin.js"></script>
 </body>
 </html>

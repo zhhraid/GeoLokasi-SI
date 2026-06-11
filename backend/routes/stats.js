@@ -4,8 +4,8 @@ const pool = require("../db");
 
 router.get("/summary", async (req, res) => {
   try {
-    const [totalRows] = await pool.query("SELECT COUNT(*) AS total FROM mahasiswa");
-    const [angkatanRows] = await pool.query(`
+    const totalResult = await pool.query("SELECT COUNT(*) AS total FROM mahasiswa");
+    const angkatanResult = await pool.query(`
       SELECT angkatan, COUNT(*) AS total
       FROM mahasiswa
       GROUP BY angkatan
@@ -13,8 +13,8 @@ router.get("/summary", async (req, res) => {
     `);
 
     res.json({
-      totalMahasiswa: Number(totalRows[0].total),
-      trenAngkatan: angkatanRows.map((row) => ({
+      totalMahasiswa: Number(totalResult.rows[0].total),
+      trenAngkatan: angkatanResult.rows.map((row) => ({
         angkatan: row.angkatan,
         total: Number(row.total),
       })),
@@ -29,7 +29,7 @@ router.get("/summary", async (req, res) => {
 
 router.get("/ranking-daerah", async (req, res) => {
   try {
-    const [rows] = await pool.query(`
+    const result = await pool.query(`
       SELECT asal_sekolah, COUNT(*) AS total
       FROM mahasiswa
       GROUP BY asal_sekolah
@@ -38,7 +38,7 @@ router.get("/ranking-daerah", async (req, res) => {
     `);
 
     res.json(
-      rows.map((row) => ({
+      result.rows.map((row) => ({
         asal_sekolah: row.asal_sekolah,
         total: Number(row.total),
       }))
