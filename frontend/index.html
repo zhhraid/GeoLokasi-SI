@@ -312,11 +312,15 @@
         </div>
       </div>
       <form id="admin-login-form" class="admin-form">
-        <label for="admin-username">Username</label>
-        <input id="admin-username" autocomplete="username" required placeholder="user">
+        <label class="login-field" for="admin-username">
+          <span>Username</span>
+          <input id="admin-username" autocomplete="username" required placeholder="Masukkan username">
+        </label>
 
-        <label for="admin-password">Password</label>
-        <input id="admin-password" type="password" autocomplete="current-password" required placeholder="user123">
+        <label class="login-field" for="admin-password">
+          <span>Password</span>
+          <input id="admin-password" type="password" autocomplete="current-password" required placeholder="Masukkan password">
+        </label>
 
         <p id="login-status" class="admin-message">Masuk untuk membuka dashboard WebGIS.</p>
         <div class="login-actions">
