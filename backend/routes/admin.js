@@ -7,6 +7,8 @@ const {
   validateMahasiswa,
 } = require("../mahasiswa-utils");
 const { requireAdmin } = require("./auth");
+const { geocodeAddress, geocodeMahasiswaRows } = require("../geocoding");
+const { parseMahasiswaWorkbook } = require("../excel-utils");
 
 const router = express.Router();
 
@@ -160,6 +162,31 @@ router.get("/mahasiswa", async (req, res) => {
   }
 });
 
+router.post("/geocode", async (req, res) => {
+  const alamat = String(req.body?.alamat || "").trim();
+
+  if (!alamat) {
+    res.status(400).json({ message: "Alamat wajib diisi sebelum geocoding" });
+    return;
+  }
+
+  try {
+    const coordinates = await geocodeAddress(alamat);
+
+    if (!coordinates) {
+      res.status(422).json({ message: "Alamat tidak ditemukan oleh layanan geocoding" });
+      return;
+    }
+
+    res.json(coordinates);
+  } catch (error) {
+    res.status(502).json({
+      message: "Gagal melakukan geocoding alamat",
+      error: error.message,
+    });
+  }
+});
+
 router.post("/mahasiswa", async (req, res) => {
   const row = normalizeMahasiswaRow(req.body || {});
   const errors = validateMahasiswa(row);
@@ -169,27 +196,62 @@ router.post("/mahasiswa", async (req, res) => {
     return;
   }
 
-  const client = await pool.connect();
-
   try {
-    await client.query("BEGIN");
-    await upsertMahasiswaRows(client, [row]);
-    await client.query("COMMIT");
+    const result = await geocodeMahasiswaRows([{ row, rowNumber: 1 }]);
 
-    res.status(201).json({ message: "Data mahasiswa berhasil disimpan" });
+    if (result.rejectedRows.length > 0) {
+      res.status(422).json({
+        message: "Alamat tidak dapat diterjemahkan menjadi koordinat",
+        errors: result.rejectedRows[0].errors,
+      });
+      return;
+    }
+
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      await upsertMahasiswaRows(client, result.rows);
+      await client.query("COMMIT");
+
+      res.status(201).json({
+        message: "Data mahasiswa berhasil disimpan",
+        geocoded: result.geocoded,
+      });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   } catch (error) {
-    await client.query("ROLLBACK");
-    res.status(500).json({
-      message: "Gagal menyimpan data mahasiswa",
+    res.status(502).json({
+      message: "Gagal melakukan geocoding atau menyimpan data mahasiswa",
       error: error.message,
     });
-  } finally {
-    client.release();
   }
 });
 
 router.post("/mahasiswa/import", async (req, res) => {
-  const rows = parseMahasiswaCsv(req.body?.csv);
+  let rows;
+  let sourceSheet = null;
+
+  try {
+    if (req.body?.excelBase64) {
+      const parsedWorkbook = await parseMahasiswaWorkbook(Buffer.from(req.body.excelBase64, "base64"));
+      rows = parsedWorkbook.rows;
+      sourceSheet = parsedWorkbook.sheetName;
+    } else {
+      rows = parseMahasiswaCsv(req.body?.csv);
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: "File Excel tidak dapat dibaca",
+      error: error.message,
+    });
+    return;
+  }
+
   const validRows = [];
   const rejectedRows = [];
 
@@ -201,38 +263,57 @@ router.post("/mahasiswa/import", async (req, res) => {
       return;
     }
 
-    validRows.push(row);
+    validRows.push({ row, rowNumber: index + 1 });
   });
 
   if (validRows.length === 0) {
     res.status(400).json({
       message: "Tidak ada baris CSV yang valid",
-      rejectedRows,
+      rejectedRows: rejectedRows.slice(0, 20),
     });
     return;
   }
 
-  const client = await pool.connect();
-
   try {
-    await client.query("BEGIN");
-    const imported = await upsertMahasiswaRows(client, validRows);
-    await client.query("COMMIT");
+    const geocodingResult = await geocodeMahasiswaRows(validRows);
+    rejectedRows.push(...geocodingResult.rejectedRows);
 
-    res.json({
-      message: "Import CSV berhasil",
-      imported,
-      rejected: rejectedRows.length,
-      rejectedRows: rejectedRows.slice(0, 20),
-    });
+    if (geocodingResult.rows.length === 0) {
+      res.status(422).json({
+        message: "Tidak ada baris yang berhasil di-geocoding",
+        rejectedRows: rejectedRows.slice(0, 20),
+      });
+      return;
+    }
+
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      const imported = await upsertMahasiswaRows(client, geocodingResult.rows);
+      await client.query("COMMIT");
+
+      res.json({
+        message: "Import CSV dan geocoding berhasil",
+        imported,
+        approximate: geocodingResult.approximate,
+        fallback: geocodingResult.fallback,
+        geocoded: geocodingResult.geocoded,
+        sourceSheet,
+        rejected: rejectedRows.length,
+        rejectedRows: rejectedRows.slice(0, 20),
+      });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   } catch (error) {
-    await client.query("ROLLBACK");
-    res.status(500).json({
-      message: "Gagal import CSV",
+    res.status(502).json({
+      message: "Gagal melakukan geocoding atau import CSV",
       error: error.message,
     });
-  } finally {
-    client.release();
   }
 });
 

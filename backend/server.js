@@ -17,6 +17,14 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
+app.get("/template-import-mahasiswa.csv", (req, res) => {
+  res.download(path.join(__dirname, "../template-import-mahasiswa.csv"));
+});
+
+app.get("/template-import-mahasiswa.xlsx", (req, res) => {
+  res.download(path.join(__dirname, "../template-import-mahasiswa.xlsx"));
+});
+
 app.use("/api/auth", authRoutes.router);
 app.use("/api/admin", adminRoutes);
 app.use("/api/mahasiswa", mahasiswaRoutes);

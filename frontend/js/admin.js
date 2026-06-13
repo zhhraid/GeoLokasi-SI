@@ -11,9 +11,12 @@ const adminStatus = document.getElementById("admin-status");
 const adminSearchInput = document.getElementById("admin-search-input");
 const adminTableStatus = document.getElementById("admin-table-status");
 const manualNoBpInput = document.getElementById("manual-no-bp");
-const generateGeocodingButton = document.getElementById("generate-geocoding-button");
 const geocodingStatus = document.getElementById("geocoding-status");
-const manualCoordinateSection = document.getElementById("manual-coordinate-section");
+const manualAddressInput = document.getElementById("manual-alamat");
+const manualLatitudeInput = document.getElementById("manual-latitude");
+const manualLongitudeInput = document.getElementById("manual-longitude");
+const manualGeocodingButton = document.getElementById("manual-geocoding-button");
+const manualGeocodingStatus = document.getElementById("manual-geocoding-status");
 let openAdminAfterLogin = false;
 
 localStorage.removeItem(ADMIN_TOKEN_KEY);
@@ -53,6 +56,16 @@ function debounceAdmin(callback, delay = 320) {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => callback(...args), delay);
   };
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+    reader.onerror = () => reject(new Error("File Excel tidak dapat dibaca"));
+    reader.readAsDataURL(file);
+  });
 }
 
 function updateAuthButtons() {
@@ -110,7 +123,12 @@ async function adminRequest(path, options = {}) {
       showLoginModal();
     }
 
-    throw new Error(data.message || "Request admin gagal");
+    const rejectedDetails = data.rejectedRows
+      ?.slice(0, 3)
+      .map((row) => `Baris ${row.rowNumber}: ${row.errors.join(", ")}`)
+      .join("; ");
+    const details = data.errors?.join(", ") || rejectedDetails || data.error;
+    throw new Error(details ? `${data.message}: ${details}` : data.message || "Request admin gagal");
   }
 
   return data;
@@ -250,24 +268,71 @@ document.getElementById("csv-import-form").addEventListener("submit", async (eve
   const file = fileInput.files[0];
 
   if (!file) {
-    status.textContent = "Pilih file CSV terlebih dahulu.";
+    status.textContent = "Pilih file CSV atau Excel terlebih dahulu.";
     return;
   }
 
-  status.textContent = "Mengimport CSV...";
+  status.textContent = "Membaca file, melakukan geocoding, dan menyimpan data...";
+  geocodingStatus.textContent = "Geocoding sedang berjalan. Proses dapat memerlukan waktu untuk banyak alamat unik.";
 
   try {
-    const csv = await file.text();
+    const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+    const payload = isExcel
+      ? { excelBase64: await fileToBase64(file) }
+      : { csv: await file.text() };
     const result = await adminRequest("/admin/mahasiswa/import", {
       method: "POST",
-      body: JSON.stringify({ csv }),
+      body: JSON.stringify(payload),
     });
 
     await loadAdminRows();
-    status.textContent = `${result.imported} data berhasil diimport, ${result.rejected} baris ditolak. Pratinjau data terbaru sudah diperbarui.`;
+    const sheetInfo = result.sourceSheet ? ` dari sheet ${result.sourceSheet}` : "";
+    status.textContent = `${result.imported} data berhasil diimport${sheetInfo}, ${result.geocoded} alamat di-geocoding, ${result.rejected} baris ditolak.`;
+    geocodingStatus.textContent = "Geocoding selesai.";
   } catch (error) {
     status.textContent = error.message;
+    geocodingStatus.textContent = error.message;
   }
+});
+
+manualGeocodingButton.addEventListener("click", async () => {
+  const alamat = manualAddressInput.value.trim();
+
+  if (!alamat) {
+    manualGeocodingStatus.textContent = "Isi alamat terlebih dahulu.";
+    manualAddressInput.focus();
+    return;
+  }
+
+  manualGeocodingButton.disabled = true;
+  manualGeocodingStatus.textContent = "Mencari koordinat alamat...";
+
+  try {
+    const coordinates = await adminRequest("/admin/geocode", {
+      method: "POST",
+      body: JSON.stringify({ alamat }),
+    });
+
+    manualLatitudeInput.value = Number(coordinates.latitude).toFixed(8);
+    manualLongitudeInput.value = Number(coordinates.longitude).toFixed(8);
+    manualGeocodingStatus.textContent = coordinates.accuracy === "fallback"
+      ? "Alamat tidak dikenali. Koordinat memakai titik fallback Kota Padang; ubah manual jika tidak sesuai."
+      : coordinates.approximate
+        ? "Alamat lengkap tidak ditemukan. Koordinat menggunakan perkiraan wilayah terdekat; periksa hasilnya sebelum menyimpan."
+        : "Koordinat ditemukan. Periksa hasilnya lalu simpan data.";
+  } catch (error) {
+    manualLatitudeInput.value = "";
+    manualLongitudeInput.value = "";
+    manualGeocodingStatus.textContent = error.message;
+  } finally {
+    manualGeocodingButton.disabled = false;
+  }
+});
+
+manualAddressInput.addEventListener("input", () => {
+  manualLatitudeInput.value = "";
+  manualLongitudeInput.value = "";
+  manualGeocodingStatus.textContent = "Alamat berubah. Tekan Geocoding Otomatis untuk memperbarui koordinat.";
 });
 
 document.getElementById("manual-student-form").addEventListener("submit", async (event) => {
@@ -277,14 +342,22 @@ document.getElementById("manual-student-form").addEventListener("submit", async 
   const formData = new FormData(form);
   const payload = Object.fromEntries(formData.entries());
 
+  if (!payload.latitude || !payload.longitude) {
+    manualGeocodingStatus.textContent = "Tekan Geocoding Otomatis sampai latitude dan longitude terisi.";
+    return;
+  }
+
   try {
-    await adminRequest("/admin/mahasiswa", {
+    const result = await adminRequest("/admin/mahasiswa", {
       method: "POST",
       body: JSON.stringify(payload),
     });
 
     form.reset();
     await loadAdminRows();
+    manualGeocodingStatus.textContent = result.geocoded
+      ? "Alamat berhasil diterjemahkan dan data disimpan."
+      : "Data dengan koordinat hasil geocoding berhasil disimpan.";
   } catch (error) {
     alert(error.message);
   }
@@ -294,9 +367,4 @@ adminSearchInput.addEventListener("input", debounceAdmin(loadAdminRows));
 document.getElementById("admin-refresh-button").addEventListener("click", () => {
   loadAdminRows();
 });
-generateGeocodingButton.addEventListener("click", () => {
-  manualCoordinateSection.classList.remove("hidden");
-  geocodingStatus.textContent = "Mode geocoding aktif. Tampilan koordinat sudah disiapkan.";
-});
-
 updateAuthButtons();
