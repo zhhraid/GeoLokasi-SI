@@ -11,7 +11,9 @@ const adminStatus = document.getElementById("admin-status");
 const adminSearchInput = document.getElementById("admin-search-input");
 const adminTableStatus = document.getElementById("admin-table-status");
 const manualNoBpInput = document.getElementById("manual-no-bp");
-const manualJalurPreview = document.getElementById("manual-jalur-preview");
+const generateGeocodingButton = document.getElementById("generate-geocoding-button");
+const geocodingStatus = document.getElementById("geocoding-status");
+const manualCoordinateSection = document.getElementById("manual-coordinate-section");
 let openAdminAfterLogin = false;
 
 localStorage.removeItem(ADMIN_TOKEN_KEY);
@@ -85,23 +87,6 @@ function hideLoginModal() {
   loginModal.classList.add("hidden");
 }
 
-function getJalurFromNoBp(noBp) {
-  const kode = String(noBp || "").slice(-4, -3);
-  const jalurMap = {
-    1: "SNBP",
-    2: "SNBT",
-    3: "MANDIRI",
-    7: "KHUSUS",
-  };
-
-  return jalurMap[kode] || "Belum terdeteksi";
-}
-
-function updateManualJalurPreview() {
-  const jalur = getJalurFromNoBp(manualNoBpInput.value);
-  manualJalurPreview.textContent = `Jalur masuk otomatis: ${jalur}`;
-}
-
 async function adminRequest(path, options = {}) {
   const headers = {
     ...(options.headers || {}),
@@ -145,6 +130,16 @@ function formatCoordinate(latitude, longitude) {
 function renderAdminTable(rows) {
   const tbody = document.getElementById("admin-student-table-body");
 
+  if (rows.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7">Belum ada data yang cocok. Import CSV atau isi form manual terlebih dahulu.</td>
+      </tr>
+    `;
+    adminTableStatus.textContent = "Belum ada data terbaru untuk ditampilkan.";
+    return;
+  }
+
   tbody.innerHTML = rows
     .map((row) => `
       <tr>
@@ -159,7 +154,7 @@ function renderAdminTable(rows) {
     `)
     .join("");
 
-  adminTableStatus.textContent = `${rows.length} data ditampilkan.`;
+  adminTableStatus.textContent = `${rows.length} data terbaru ditampilkan dari database.`;
 }
 
 async function loadAdminRows() {
@@ -268,8 +263,8 @@ document.getElementById("csv-import-form").addEventListener("submit", async (eve
       body: JSON.stringify({ csv }),
     });
 
-    status.textContent = `${result.imported} data berhasil diimport, ${result.rejected} baris ditolak.`;
     await loadAdminRows();
+    status.textContent = `${result.imported} data berhasil diimport, ${result.rejected} baris ditolak. Pratinjau data terbaru sudah diperbarui.`;
   } catch (error) {
     status.textContent = error.message;
   }
@@ -279,11 +274,8 @@ document.getElementById("manual-student-form").addEventListener("submit", async 
   event.preventDefault();
 
   const form = event.currentTarget;
-  const status = document.getElementById("manual-form-status");
   const formData = new FormData(form);
   const payload = Object.fromEntries(formData.entries());
-
-  status.textContent = "Menyimpan data...";
 
   try {
     await adminRequest("/admin/mahasiswa", {
@@ -291,12 +283,10 @@ document.getElementById("manual-student-form").addEventListener("submit", async 
       body: JSON.stringify(payload),
     });
 
-    status.textContent = "Data mahasiswa berhasil disimpan.";
     form.reset();
-    updateManualJalurPreview();
     await loadAdminRows();
   } catch (error) {
-    status.textContent = error.message;
+    alert(error.message);
   }
 });
 
@@ -304,7 +294,9 @@ adminSearchInput.addEventListener("input", debounceAdmin(loadAdminRows));
 document.getElementById("admin-refresh-button").addEventListener("click", () => {
   loadAdminRows();
 });
-manualNoBpInput.addEventListener("input", updateManualJalurPreview);
+generateGeocodingButton.addEventListener("click", () => {
+  manualCoordinateSection.classList.remove("hidden");
+  geocodingStatus.textContent = "Mode geocoding aktif. Tampilan koordinat sudah disiapkan.";
+});
 
 updateAuthButtons();
-updateManualJalurPreview();

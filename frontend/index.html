@@ -29,7 +29,6 @@
       <section class="panel hero-panel">
         <span class="eyebrow">Sistem Informasi Unand</span>
         <h1>Analisis Persebaran Asal Mahasiswa</h1>
-        <p>Pilih modul kerja untuk melihat dashboard statistik atau peta persebaran spasial.</p>
       </section>
 
       <nav class="module-nav" aria-label="Menu utama WebGIS">
@@ -46,7 +45,7 @@
         <button id="admin-menu" class="module-button" type="button" data-view="admin">
           <b>03</b>
           <span>Input Data</span>
-          <small>Import CSV, input manual, dan kelola data</small>
+          <small>Import massal dan tambah data satuan</small>
         </button>
       </nav>
     </aside>
@@ -172,7 +171,6 @@
         <div>
           <span class="eyebrow">Panel Admin</span>
           <h2>Kelola Data Mahasiswa</h2>
-          <p>Import CSV, tambah data manual, dan pantau ringkasan data mahasiswa yang tersimpan di PostgreSQL.</p>
         </div>
         <div class="header-actions">
           <span id="admin-status" class="status-pill">Perlu login</span>
@@ -182,39 +180,79 @@
 
       <div class="admin-grid">
         <section class="panel admin-card">
-          <div class="section-title">Import CSV</div>
+          <div class="admin-card-header">
+            <div>
+              <div class="section-title">Import CSV</div>
+              <p class="form-hint">Untuk memasukkan banyak data sekaligus. Setelah berhasil, data langsung tampil di pratinjau terbaru.</p>
+            </div>
+          </div>
           <form id="csv-import-form" class="admin-form">
-            <label for="csv-file">File CSV</label>
-            <input id="csv-file" type="file" accept=".csv,.txt">
-            <p class="form-hint">Kolom yang didukung: format standar atau ekspor GIS dengan X, Y, fid, No_BP, Angkatan, Nama_Lengkap, Jenis_Kelamin, Asal_Sekolah, Jalur_Masuk.</p>
-            <button class="primary-action" type="submit">Import CSV</button>
+            <div class="file-upload-box">
+              <div class="file-upload-copy">
+                <strong>Pilih file CSV</strong>
+                <small>CSV tidak mengisi form manual. Hasil import muncul di tabel bawah.</small>
+              </div>
+              <input id="csv-file" type="file" accept=".csv,.txt">
+            </div>
+            <div class="admin-form-actions csv-actions">
+              <button class="primary-action" type="submit">Import CSV</button>
+            </div>
           </form>
           <p id="csv-import-status" class="admin-message">Belum ada file dipilih.</p>
+
+          <div class="geocoding-panel">
+            <div class="geocoding-copy">
+              <strong>Geocoding Koordinat</strong>
+              <small>Disiapkan untuk data hasil import yang belum punya latitude dan longitude.</small>
+            </div>
+            <div class="admin-form-actions">
+              <button id="generate-geocoding-button" class="secondary-action" type="button">Generate Geocoding</button>
+            </div>
+            <p id="geocoding-status" class="admin-message">Menunggu proses geocoding.</p>
+          </div>
         </section>
 
         <section class="panel admin-card">
-          <div class="section-title">Input Manual</div>
+          <div class="admin-card-header">
+            <div>
+              <div class="section-title">Input Manual</div>
+              <p class="form-hint">Untuk menambahkan atau menguji satu data mahasiswa secara terpisah.</p>
+            </div>
+          </div>
           <form id="manual-student-form" class="admin-form manual-form">
-            <label for="manual-no-bp">No BP / NIM</label>
-            <input id="manual-no-bp" name="no_bp" required placeholder="2511521001">
+            <div class="form-section">
+              <div class="form-section-title">Identitas Mahasiswa</div>
+              <div class="form-row">
+                <label for="manual-no-bp">No BP / NIM
+                  <input id="manual-no-bp" name="no_bp" required placeholder="2511521001">
+                </label>
+                <label for="manual-angkatan">Angkatan
+                  <input id="manual-angkatan" name="angkatan" required type="number" min="2000" max="2100" placeholder="2025">
+                </label>
+              </div>
+              <label for="manual-nama">Nama Lengkap
+                <input id="manual-nama" name="nama_lengkap" required placeholder="Nama mahasiswa">
+              </label>
+              <label for="manual-jk">Jenis Kelamin
+                <select id="manual-jk" name="jenis_kelamin" required>
+                  <option value="">Pilih</option>
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
+              </label>
+            </div>
 
-            <label for="manual-angkatan">Angkatan</label>
-            <input id="manual-angkatan" name="angkatan" required type="number" min="2000" max="2100" placeholder="2025">
+            <div class="form-section">
+              <div class="form-section-title">Alamat dan Sekolah</div>
+              <label for="manual-sekolah">Asal Sekolah
+                <input id="manual-sekolah" name="asal_sekolah" required placeholder="SMAN 1 Padang">
+              </label>
+              <label for="manual-alamat">Alamat
+                <input id="manual-alamat" name="alamat" placeholder="Jl. Dr. M. Hatta, Padang">
+              </label>
+            </div>
 
-            <label for="manual-nama">Nama Lengkap</label>
-            <input id="manual-nama" name="nama_lengkap" required placeholder="Nama mahasiswa">
-
-            <label for="manual-jk">Jenis Kelamin</label>
-            <select id="manual-jk" name="jenis_kelamin" required>
-              <option value="">Pilih</option>
-              <option value="L">Laki-laki</option>
-              <option value="P">Perempuan</option>
-            </select>
-
-            <label for="manual-sekolah">Asal Sekolah</label>
-            <input id="manual-sekolah" name="asal_sekolah" required placeholder="SMAN 1 Padang">
-
-            <div class="form-row">
+            <div id="manual-coordinate-section" class="form-row coordinate-section hidden">
               <label for="manual-latitude">
                 Latitude
                 <input id="manual-latitude" name="latitude" placeholder="-0.914900">
@@ -224,19 +262,18 @@
                 <input id="manual-longitude" name="longitude" placeholder="100.458400">
               </label>
             </div>
-
-            <p id="manual-jalur-preview" class="form-hint">Jalur masuk otomatis dari kode No BP.</p>
-            <button class="primary-action" type="submit">Simpan Data</button>
+            <div class="admin-form-actions">
+              <button class="primary-action" type="submit">Simpan Data</button>
+            </div>
           </form>
-          <p id="manual-form-status" class="admin-message">Siap menambah data baru.</p>
         </section>
       </div>
 
       <section class="panel admin-table-card">
         <div class="admin-table-toolbar">
-          <div>
-            <div class="section-title">Data Mahasiswa</div>
-            <p id="admin-table-status" class="admin-message">Memuat data admin.</p>
+            <div>
+            <div class="section-title">Pratinjau Data Terbaru</div>
+            <p id="admin-table-status" class="admin-message">Data hasil import CSV dan input manual terbaru akan tampil di sini.</p>
           </div>
           <div class="admin-table-actions">
             <input id="admin-search-input" type="search" placeholder="Cari nama, No BP, sekolah">
@@ -266,7 +303,14 @@
 
   <div id="login-modal" class="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
     <div class="login-dialog">
-      <div class="section-title" id="login-title">Login Aplikasi</div>
+      <div class="login-brand">
+        <div class="login-mark">AS</div>
+        <div>
+          <span class="eyebrow">Sistem Informasi Unand</span>
+          <div class="section-title" id="login-title">Masuk ke AsalSI WebGIS</div>
+          <p>Kelola data asal mahasiswa dengan aman dan terpusat.</p>
+        </div>
+      </div>
       <form id="admin-login-form" class="admin-form">
         <label for="admin-username">Username</label>
         <input id="admin-username" autocomplete="username" required placeholder="user">
