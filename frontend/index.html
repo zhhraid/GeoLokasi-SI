@@ -18,7 +18,7 @@
     </div>
     <div class="topbar-actions">
       <span class="topbar-chip">Universitas Andalas</span>
-      <span class="topbar-chip">Data 2021-2025</span>
+      <span class="topbar-chip" id="data-range-chip">Data 2010-2025</span>
       <button id="admin-login-button" class="topbar-button" type="button">Login</button>
       <button id="admin-logout-button" class="topbar-button hidden" type="button">Logout</button>
     </div>
@@ -45,7 +45,7 @@
         </button>
         <button id="admin-menu" class="module-button" type="button" data-view="admin">
           <b>03</b>
-          <span>Admin</span>
+          <span>Input Data</span>
           <small>Import CSV, input manual, dan kelola data</small>
         </button>
       </nav>
@@ -72,17 +72,50 @@
           <strong id="total-angkatan">0</strong>
           <small>Rentang data mahasiswa</small>
         </article>
+        <article class="metric-card">
+          <span>Angkatan Terbanyak</span>
+          <strong id="kpi-top-angkatan">-</strong>
+          <small id="kpi-top-angkatan-detail">Data belum tersedia</small>
+        </article>
+        <article class="metric-card">
+          <span>Tren Terbaru</span>
+          <strong id="kpi-latest-trend">-</strong>
+          <small id="kpi-latest-trend-detail">Data belum tersedia</small>
+        </article>
+        <article class="metric-card">
+          <span>Jalur Dominan</span>
+          <strong id="kpi-top-jalur">-</strong>
+          <small id="kpi-top-jalur-detail">Data belum tersedia</small>
+        </article>
+        <article class="metric-card">
+          <span>Sekolah Dominan</span>
+          <strong id="kpi-top-school">-</strong>
+          <small id="kpi-top-school-detail">Data belum tersedia</small>
+        </article>
       </div>
 
       <div class="dashboard-grid">
         <section class="panel dashboard-card">
           <div class="section-title">Tren Per Angkatan</div>
-          <div id="trend-chart" class="trend-list trend-list-large"></div>
+          <div class="chart-box">
+            <canvas id="trend-chart"></canvas>
+          </div>
         </section>
 
         <section class="panel dashboard-card">
           <div class="section-title">Ranking Asal Sekolah</div>
-          <ol id="ranking-list" class="ranking-list ranking-list-large"></ol>
+          <div class="chart-box">
+            <canvas id="ranking-chart"></canvas>
+          </div>
+        </section>
+      </div>
+
+      <div class="dashboard-grid secondary-dashboard-grid">
+        <section class="panel dashboard-card compact-dashboard-card">
+          <div class="section-title">Distribusi Jalur Masuk</div>
+          <div class="chart-box chart-box-small">
+            <canvas id="jalur-chart"></canvas>
+          </div>
         </section>
       </div>
     </section>
@@ -98,31 +131,11 @@
           <label for="angkatan">Angkatan</label>
           <select id="angkatan" name="angkatan">
             <option value="">Semua Angkatan</option>
-            <option value="2021">2021</option>
-            <option value="2022">2022</option>
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
           </select>
 
           <fieldset class="jalur-filter">
             <legend>Jalur Penerimaan</legend>
-            <label>
-              <input type="checkbox" name="jalur" value="SNBP" checked>
-              <span>SNBP</span>
-            </label>
-            <label>
-              <input type="checkbox" name="jalur" value="SNBT" checked>
-              <span>SNBT</span>
-            </label>
-            <label>
-              <input type="checkbox" name="jalur" value="Mandiri" checked>
-              <span>Mandiri</span>
-            </label>
-            <label>
-              <input type="checkbox" name="jalur" value="Khusus" checked>
-              <span>Khusus</span>
-            </label>
+            <div id="jalur-filter-options"></div>
           </fieldset>
 
           <p id="filter-result-count" class="filter-result-count">Menunggu data peta.</p>
@@ -148,12 +161,7 @@
             <span class="eyebrow">OpenStreetMap Layer</span>
             <strong id="map-title">Marker View</strong>
           </div>
-          <div class="legend">
-            <span><i class="legend-dot snbp"></i>SNBP</span>
-            <span><i class="legend-dot snbt"></i>SNBT</span>
-            <span><i class="legend-dot mandiri"></i>Mandiri</span>
-            <span><i class="legend-dot khusus"></i>Khusus</span>
-          </div>
+          <div id="map-legend" class="legend"></div>
         </div>
         <div id="map"></div>
       </section>
@@ -166,27 +174,11 @@
           <h2>Kelola Data Mahasiswa</h2>
           <p>Import CSV, tambah data manual, dan pantau ringkasan data mahasiswa yang tersimpan di PostgreSQL.</p>
         </div>
-        <span id="admin-status" class="status-pill">Perlu login</span>
+        <div class="header-actions">
+          <span id="admin-status" class="status-pill">Perlu login</span>
+          <button id="export-report-button" class="header-action-button" type="button">Export PDF</button>
+        </div>
       </div>
-
-      <div class="metric-grid dashboard-metrics admin-metrics">
-        <article class="metric-card">
-          <span>Total Mahasiswa</span>
-          <strong id="admin-total-mahasiswa">0</strong>
-          <small>Seluruh data tersimpan</small>
-        </article>
-        <article class="metric-card">
-          <span>Data Terpetakan</span>
-          <strong id="admin-total-terpetakan">0</strong>
-          <small>Memiliki koordinat</small>
-        </article>
-        <article class="metric-card">
-          <span>Angkatan</span>
-          <strong id="admin-total-angkatan">0</strong>
-          <small>Rentang batch data</small>
-        </article>
-      </div>
-      <div id="admin-jalur-summary" class="jalur-summary"></div>
 
       <div class="admin-grid">
         <section class="panel admin-card">
@@ -194,7 +186,7 @@
           <form id="csv-import-form" class="admin-form">
             <label for="csv-file">File CSV</label>
             <input id="csv-file" type="file" accept=".csv,.txt">
-            <p class="form-hint">Kolom yang didukung: id, no_bp, angkatan, nama_lengkap, jenis_kelamin, asal_sekolah, longitude, latitude.</p>
+            <p class="form-hint">Kolom yang didukung: format standar atau ekspor GIS dengan X, Y, fid, No_BP, Angkatan, Nama_Lengkap, Jenis_Kelamin, Asal_Sekolah, Jalur_Masuk.</p>
             <button class="primary-action" type="submit">Import CSV</button>
           </form>
           <p id="csv-import-status" class="admin-message">Belum ada file dipilih.</p>
@@ -293,6 +285,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/map.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/admin.js"></script>

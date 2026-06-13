@@ -1,21 +1,34 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const { jalurMasukSql } = require("../mahasiswa-utils");
 
 router.get("/summary", async (req, res) => {
   try {
-    const totalResult = await pool.query("SELECT COUNT(*) AS total FROM mahasiswa");
-    const angkatanResult = await pool.query(`
-      SELECT angkatan, COUNT(*) AS total
-      FROM mahasiswa
-      GROUP BY angkatan
-      ORDER BY angkatan
-    `);
+    const [totalResult, angkatanResult, jalurResult] = await Promise.all([
+      pool.query("SELECT COUNT(*) AS total FROM mahasiswa"),
+      pool.query(`
+        SELECT angkatan, COUNT(*) AS total
+        FROM mahasiswa
+        GROUP BY angkatan
+        ORDER BY angkatan
+      `),
+      pool.query(`
+        SELECT ${jalurMasukSql} AS jalur_masuk, COUNT(*) AS total
+        FROM mahasiswa
+        GROUP BY 1
+        ORDER BY total DESC, jalur_masuk ASC
+      `),
+    ]);
 
     res.json({
       totalMahasiswa: Number(totalResult.rows[0].total),
       trenAngkatan: angkatanResult.rows.map((row) => ({
         angkatan: row.angkatan,
+        total: Number(row.total),
+      })),
+      jalurMasuk: jalurResult.rows.map((row) => ({
+        jalur_masuk: row.jalur_masuk || "Belum tersedia",
         total: Number(row.total),
       })),
     });
@@ -32,6 +45,9 @@ router.get("/ranking-daerah", async (req, res) => {
     const result = await pool.query(`
       SELECT asal_sekolah, COUNT(*) AS total
       FROM mahasiswa
+      WHERE asal_sekolah IS NOT NULL
+        AND TRIM(asal_sekolah) <> ''
+        AND TRIM(asal_sekolah) <> '-'
       GROUP BY asal_sekolah
       ORDER BY total DESC, asal_sekolah ASC
       LIMIT 10

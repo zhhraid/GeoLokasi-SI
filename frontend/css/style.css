@@ -335,13 +335,39 @@ body {
   white-space: nowrap;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.header-action-button {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 8px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.header-action-button:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
 .metric-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
 .dashboard-metrics {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   margin-bottom: 20px;
 }
 
@@ -380,8 +406,9 @@ body {
 .metric-card strong {
   display: block;
   margin-top: 8px;
-  font-size: 40px;
-  line-height: 1;
+  overflow-wrap: anywhere;
+  font-size: 34px;
+  line-height: 1.05;
   color: var(--ink-950);
 }
 
@@ -398,8 +425,25 @@ body {
   gap: 20px;
 }
 
+.secondary-dashboard-grid {
+  grid-template-columns: 1fr;
+}
+
 .dashboard-card {
   min-height: 360px;
+}
+
+.compact-dashboard-card {
+  min-height: 300px;
+}
+
+.chart-box {
+  position: relative;
+  height: 295px;
+}
+
+.chart-box-small {
+  height: 230px;
 }
 
 .section-title {
@@ -562,6 +606,10 @@ body {
   background: #ffffff;
   font-size: 12px;
   font-weight: 800;
+}
+
+.auto-report-card {
+  margin-bottom: 20px;
 }
 
 .admin-table-card {
@@ -847,6 +895,12 @@ body {
   margin: 4px 0;
 }
 
+@media (max-width: 1280px) {
+  .dashboard-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 980px) {
   .app-header {
     height: auto;
@@ -892,6 +946,12 @@ body {
   }
 
   .map-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .content-header,
+  .header-actions {
     flex-direction: column;
     align-items: flex-start;
   }

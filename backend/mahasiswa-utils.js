@@ -1,11 +1,14 @@
 const jalurMasukSql = `
-  CASE SUBSTRING(no_bp FROM LENGTH(no_bp) - 3 FOR 1)
-    WHEN '1' THEN 'SNBP'
-    WHEN '2' THEN 'SNBT'
-    WHEN '3' THEN 'Mandiri'
-    WHEN '7' THEN 'Khusus'
-    ELSE jalur_masuk
-  END
+  COALESCE(
+    NULLIF(jalur_masuk, ''),
+    CASE SUBSTRING(no_bp FROM LENGTH(no_bp) - 3 FOR 1)
+      WHEN '1' THEN 'SNBP'
+      WHEN '2' THEN 'SNBT'
+      WHEN '3' THEN 'MANDIRI'
+      WHEN '7' THEN 'KHUSUS'
+      ELSE NULL
+    END
+  )
 `;
 
 function parseCsvLine(line) {
@@ -82,6 +85,8 @@ function getJalurMasuk(noBp) {
 }
 
 function toInteger(value) {
+  if (String(value || "").trim() === "") return null;
+
   const number = Number(value);
   return Number.isInteger(number) ? number : null;
 }
@@ -96,15 +101,20 @@ function normalizeMahasiswaRow(row) {
     nama_lengkap: String(row.nama_lengkap || row.nama || row.namaLengkap || "").trim(),
     jenis_kelamin: String(row.jenis_kelamin || row.jenisKelamin || "").trim().toUpperCase(),
     asal_sekolah: String(row.asal_sekolah || row.asalSekolah || "").trim(),
-    longitude: normalizeCoordinate(row.longitude, "longitude"),
-    latitude: normalizeCoordinate(row.latitude, "latitude"),
-    jalur_masuk: getJalurMasuk(noBp),
+    longitude: normalizeCoordinate(row.longitude || row.x, "longitude"),
+    latitude: normalizeCoordinate(row.latitude || row.y, "latitude"),
+    jalur_masuk: String(row.jalur_masuk || row.jalurMasuk || getJalurMasuk(noBp) || "").trim() || null,
   };
 }
 
-function getValueByHeader(columns, headerIndex, name, fallbackIndex) {
-  const index = headerIndex[name];
-  return columns[index === undefined ? fallbackIndex : index];
+function getValueByHeaders(columns, headerIndex, names, fallbackIndex) {
+  const nameList = Array.isArray(names) ? names : [names];
+  const matchedName = nameList.find((name) => {
+    const index = headerIndex[name];
+    return index !== undefined && String(columns[index] || "").trim() !== "";
+  });
+  const index = matchedName === undefined ? fallbackIndex : headerIndex[matchedName];
+  return columns[index];
 }
 
 function parseMahasiswaCsv(csv) {
@@ -127,14 +137,15 @@ function parseMahasiswaCsv(csv) {
 
   return dataLines.map(parseCsvLine).map((columns) =>
     normalizeMahasiswaRow({
-      id: getValueByHeader(columns, headerIndex, "id", 0),
-      no_bp: getValueByHeader(columns, headerIndex, "no_bp", 1),
-      angkatan: getValueByHeader(columns, headerIndex, "angkatan", 2),
-      nama_lengkap: getValueByHeader(columns, headerIndex, "nama_lengkap", 3),
-      jenis_kelamin: getValueByHeader(columns, headerIndex, "jenis_kelamin", 4),
-      asal_sekolah: getValueByHeader(columns, headerIndex, "asal_sekolah", 5),
-      longitude: getValueByHeader(columns, headerIndex, "longitude", 6),
-      latitude: getValueByHeader(columns, headerIndex, "latitude", 7),
+      id: getValueByHeaders(columns, headerIndex, ["id", "fid"], 0),
+      no_bp: getValueByHeaders(columns, headerIndex, ["no_bp", "nobp"], 1),
+      angkatan: getValueByHeaders(columns, headerIndex, "angkatan", 2),
+      nama_lengkap: getValueByHeaders(columns, headerIndex, ["nama_lengkap", "nama"], 3),
+      jenis_kelamin: getValueByHeaders(columns, headerIndex, "jenis_kelamin", 4),
+      asal_sekolah: getValueByHeaders(columns, headerIndex, "asal_sekolah", 5),
+      longitude: getValueByHeaders(columns, headerIndex, ["longitude", "x"], 6),
+      latitude: getValueByHeaders(columns, headerIndex, ["latitude", "y"], 7),
+      jalur_masuk: getValueByHeaders(columns, headerIndex, "jalur_masuk", 8),
     })
   );
 }

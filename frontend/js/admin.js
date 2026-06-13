@@ -90,8 +90,8 @@ function getJalurFromNoBp(noBp) {
   const jalurMap = {
     1: "SNBP",
     2: "SNBT",
-    3: "Mandiri",
-    7: "Khusus",
+    3: "MANDIRI",
+    7: "KHUSUS",
   };
 
   return jalurMap[kode] || "Belum terdeteksi";
@@ -142,21 +142,6 @@ function formatCoordinate(latitude, longitude) {
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 }
 
-function renderAdminDashboard(data) {
-  document.getElementById("admin-total-mahasiswa").textContent = data.totalMahasiswa || 0;
-  document.getElementById("admin-total-terpetakan").textContent = data.totalTerpetakan || 0;
-  document.getElementById("admin-total-angkatan").textContent = data.totalAngkatan || 0;
-
-  document.getElementById("admin-jalur-summary").innerHTML = (data.perJalur || [])
-    .map((row) => `
-      <span>
-        <strong>${escapeHtml(row.jalur_masuk || "-")}</strong>
-        ${Number(row.total || 0)} data
-      </span>
-    `)
-    .join("");
-}
-
 function renderAdminTable(rows) {
   const tbody = document.getElementById("admin-student-table-body");
 
@@ -175,11 +160,6 @@ function renderAdminTable(rows) {
     .join("");
 
   adminTableStatus.textContent = `${rows.length} data ditampilkan.`;
-}
-
-async function loadAdminDashboard() {
-  const data = await adminRequest("/admin/dashboard");
-  renderAdminDashboard(data);
 }
 
 async function loadAdminRows() {
@@ -207,7 +187,7 @@ async function loadAdminPanel() {
 
   window.setContentView("admin");
   adminStatus.textContent = "Memuat";
-  await Promise.all([loadAdminDashboard(), loadAdminRows()]);
+  await loadAdminRows();
   adminStatus.textContent = "Admin aktif";
 }
 
@@ -289,7 +269,7 @@ document.getElementById("csv-import-form").addEventListener("submit", async (eve
     });
 
     status.textContent = `${result.imported} data berhasil diimport, ${result.rejected} baris ditolak.`;
-    await Promise.all([loadAdminDashboard(), loadAdminRows()]);
+    await loadAdminRows();
   } catch (error) {
     status.textContent = error.message;
   }
@@ -314,7 +294,7 @@ document.getElementById("manual-student-form").addEventListener("submit", async 
     status.textContent = "Data mahasiswa berhasil disimpan.";
     form.reset();
     updateManualJalurPreview();
-    await Promise.all([loadAdminDashboard(), loadAdminRows()]);
+    await loadAdminRows();
   } catch (error) {
     status.textContent = error.message;
   }
@@ -322,7 +302,6 @@ document.getElementById("manual-student-form").addEventListener("submit", async 
 
 adminSearchInput.addEventListener("input", debounceAdmin(loadAdminRows));
 document.getElementById("admin-refresh-button").addEventListener("click", () => {
-  loadAdminDashboard();
   loadAdminRows();
 });
 manualNoBpInput.addEventListener("input", updateManualJalurPreview);
