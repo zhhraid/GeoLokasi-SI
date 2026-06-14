@@ -1,5 +1,9 @@
 const express = require("express");
 const router = express.Router();
+
+async function ensureMahasiswaAlamatColumn() {
+  await pool.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS alamat TEXT");
+}
 const pool = require("../db");
 const { jalurMasukSql } = require("../mahasiswa-utils");
 
@@ -40,11 +44,12 @@ function buildMahasiswaFilters(query) {
 
 router.get("/", async (req, res) => {
   try {
+    await ensureMahasiswaAlamatColumn();
     const { whereClause, values } = buildMahasiswaFilters(req.query);
     const result = await pool.query(
       `
         SELECT id, no_bp, angkatan, nama_lengkap, jenis_kelamin,
-               asal_sekolah, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
+               asal_sekolah, alamat, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
         FROM mahasiswa
         ${whereClause}
         ORDER BY angkatan DESC, nama_lengkap ASC
@@ -63,11 +68,12 @@ router.get("/", async (req, res) => {
 
 router.get("/geojson", async (req, res) => {
   try {
+    await ensureMahasiswaAlamatColumn();
     const { whereClause, values } = buildMahasiswaFilters(req.query);
     const result = await pool.query(
       `
         SELECT id, no_bp, angkatan, nama_lengkap, jenis_kelamin,
-               asal_sekolah, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
+               asal_sekolah, alamat, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
         FROM mahasiswa
         ${whereClause}
         WHERE longitude IS NOT NULL AND latitude IS NOT NULL
@@ -91,6 +97,7 @@ router.get("/geojson", async (req, res) => {
           nama_lengkap: row.nama_lengkap,
           jenis_kelamin: row.jenis_kelamin,
           asal_sekolah: row.asal_sekolah,
+          alamat: row.alamat,
           longitude: Number(row.longitude),
           latitude: Number(row.latitude),
           jalur_masuk: row.jalur_masuk,

@@ -26,6 +26,7 @@ async function loadDashboard() {
     renderJalurChart(summary.jalurMasuk || []);
     renderRanking(ranking || []);
     renderDashboardKpis(summary, ranking || []);
+    renderDashboardInsights(summary, ranking || []);
     document.getElementById("data-status").textContent = "Aktif";
   } catch (error) {
     document.getElementById("data-status").textContent = "Error";
@@ -300,6 +301,122 @@ function renderDashboardKpis(summary, rankingRows) {
     report.topSchool
       ? `${report.topSchool.total} mahasiswa`
       : "Data belum tersedia";
+}
+
+function formatPercent(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? `${number.toFixed(1).replace(".0", "")}%` : "-";
+}
+
+function renderDashboardInsights(summary, rankingRows) {
+  const report = buildAutomaticReport(summary, rankingRows);
+  const trenAngkatan = summary.trenAngkatan || [];
+  const jalurMasuk = summary.jalurMasuk || [];
+  const totalMahasiswa = Number(summary.totalMahasiswa || 0);
+  const averagePerCohort = report.totalAngkatan
+    ? Math.round(totalMahasiswa / report.totalAngkatan)
+    : 0;
+  const topFiveTotal = rankingRows
+    .slice(0, 5)
+    .reduce((sum, row) => sum + Number(row.total || 0), 0);
+  const topSchoolShare = totalMahasiswa ? (topFiveTotal / totalMahasiswa) * 100 : 0;
+  const topJalurShare =
+    totalMahasiswa && report.topJalur
+      ? (Number(report.topJalur.total || 0) / totalMahasiswa) * 100
+      : 0;
+  const latestDeltaText =
+    report.previousYear && report.latestYear
+      ? `${report.latestDelta > 0 ? "+" : ""}${report.latestDelta}`
+      : "-";
+
+  document.getElementById("insight-average-cohort").textContent =
+    averagePerCohort || "-";
+  document.getElementById("insight-average-cohort-detail").textContent =
+    report.totalAngkatan
+      ? `Rata-rata dari ${report.totalAngkatan} angkatan`
+      : "Data belum tersedia";
+  document.getElementById("insight-top-school-share").textContent =
+    formatPercent(topSchoolShare);
+  document.getElementById("insight-top-school-share-detail").textContent =
+    topFiveTotal
+      ? `${topFiveTotal} mahasiswa berasal dari 5 sekolah teratas`
+      : "Data ranking belum tersedia";
+  document.getElementById("insight-top-jalur-share").textContent =
+    formatPercent(topJalurShare);
+  document.getElementById("insight-top-jalur-share-detail").textContent =
+    report.topJalur
+      ? `${report.topJalur.jalur_masuk} menyumbang ${report.topJalur.total} mahasiswa`
+      : "Data jalur belum tersedia";
+  document.getElementById("insight-latest-delta").textContent = latestDeltaText;
+  document.getElementById("insight-latest-delta-detail").textContent =
+    report.previousYear && report.latestYear
+      ? `${report.latestTrend} dari angkatan ${report.previousYear.angkatan} ke ${report.latestYear.angkatan}`
+      : "Data tren belum tersedia";
+
+  const jalurCount = jalurMasuk.length;
+  const trendDescription =
+    report.previousYear && report.latestYear
+      ? `Angkatan terbaru ${report.latestTrend} ${Math.abs(report.latestDelta)} mahasiswa dibanding ${report.previousYear.angkatan}.`
+      : "Tren terbaru belum dapat dibandingkan.";
+  document.getElementById("insight-narrative").textContent =
+    `Dataset mencakup ${totalMahasiswa} mahasiswa dari ${report.totalAngkatan || 0} angkatan dan ${jalurCount} jalur masuk. ${trendDescription} ${formatPercent(topSchoolShare)} data terkonsentrasi pada lima sekolah teratas, sehingga sekolah-sekolah ini bisa menjadi prioritas evaluasi asal mahasiswa.`;
+
+  renderTopSchoolList(rankingRows, totalMahasiswa);
+  renderTrendQuality(trenAngkatan);
+}
+
+function renderTopSchoolList(rows, totalMahasiswa) {
+  const container = document.getElementById("top-school-list");
+  const topRows = rows.slice(0, 6);
+
+  if (!topRows.length) {
+    container.innerHTML = '<p class="admin-message">Data ranking asal sekolah belum tersedia.</p>';
+    return;
+  }
+
+  const maxTotal = Math.max(...topRows.map((row) => Number(row.total || 0)), 1);
+
+  container.innerHTML = topRows
+    .map((row, index) => {
+      const total = Number(row.total || 0);
+      const width = Math.max(4, (total / maxTotal) * 100);
+      const share = totalMahasiswa ? (total / totalMahasiswa) * 100 : 0;
+
+      return `
+        <article class="top-school-item">
+          <div>
+            <span>${String(index + 1).padStart(2, "0")}</span>
+            <strong>${escapeReportHtml(row.asal_sekolah || "-")}</strong>
+            <small>${total} mahasiswa - ${formatPercent(share)} dari total</small>
+          </div>
+          <div class="school-progress" aria-hidden="true">
+            <i style="width: ${width}%"></i>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderTrendQuality(rows) {
+  const values = rows.map((row) => Number(row.total || 0)).filter(Number.isFinite);
+  const trendBox = document.getElementById("insight-narrative");
+
+  if (values.length < 3 || !trendBox) {
+    return;
+  }
+
+  const deltas = values.slice(1).map((value, index) => value - values[index]);
+  const positiveCount = deltas.filter((value) => value > 0).length;
+  const negativeCount = deltas.filter((value) => value < 0).length;
+  const pattern =
+    positiveCount > negativeCount
+      ? "Secara historis tren lebih sering meningkat."
+      : negativeCount > positiveCount
+        ? "Secara historis tren lebih sering menurun."
+        : "Secara historis tren relatif berimbang.";
+
+  trendBox.textContent = `${trendBox.textContent} ${pattern}`;
 }
 
 function buildReportHtml(summary, rankingRows) {

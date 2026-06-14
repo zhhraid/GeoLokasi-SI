@@ -1,6 +1,17 @@
 const API_BASE_URL = `${window.location.origin}/api`;
 const DEFAULT_CENTER = [-0.9149, 100.4584];
 const DEFAULT_ZOOM = 6;
+const VIEW_PATHS = new Set(["landing", "login", "dashboard", "map", "admin"]);
+const VIEW_ROUTES = {
+  landing: "/",
+  login: "/login",
+  dashboard: "/admin/dashboard",
+  map: "/admin/map",
+  admin: "/admin/input",
+};
+const PROTECTED_VIEWS = new Set(["dashboard", "map", "admin"]);
+const WEBGIS_ADMIN_TOKEN_KEY = "asalsi_admin_token";
+const WEBGIS_PENDING_VIEW_KEY = "asalsi_pending_view";
 
 const jalurColors = {
   SNBP: "#2563eb",
@@ -97,11 +108,11 @@ async function loadMarkers(filters) {
       });
     },
     onEachFeature: (feature, layer) => {
-      const props = feature.properties || {};
+      const props = normalizeFeatureProperties(feature, layer.getLatLng?.());
       const popupContent = createPopupContent(props);
 
       layer.bindPopup(popupContent);
-      layer.on("click", () => updateInfoPanel(props));
+      layer.on("click", () => updateInfoPanel(normalizeFeatureProperties(feature, layer.getLatLng?.())));
     },
   });
 
@@ -261,44 +272,80 @@ function escapeAttribute(value) {
   return escapeHtml(value).replace(/`/g, "&#096;");
 }
 
+function normalizeFeatureProperties(feature, latlng) {
+  const props = { ...(feature.properties || {}) };
+
+  if (latlng) {
+    props.latitude = Number(latlng.lat);
+    props.longitude = Number(latlng.lng);
+  }
+
+  if (feature.geometry?.coordinates?.length >= 2) {
+    const [longitude, latitude] = feature.geometry.coordinates;
+
+    if (!Number.isFinite(Number(props.longitude))) {
+      props.longitude = Number(longitude);
+    }
+
+    if (!Number.isFinite(Number(props.latitude))) {
+      props.latitude = Number(latitude);
+    }
+  }
+
+  return props;
+}
+
 function createPopupContent(props) {
   const nama = props.nama_lengkap || props.nama || "-";
   const noBp = props.no_bp || "-";
   const asalSekolah = props.asal_sekolah || "-";
+  const alamat = props.alamat || props.address || "Alamat belum tersimpan";
   const angkatan = props.angkatan || "-";
   const jenisKelamin = formatJenisKelamin(props.jenis_kelamin);
   const jalur = props.jalur_masuk || props.jalur || "Belum tersedia";
+  const koordinat = `${formatCoordinate(props.latitude)}, ${formatCoordinate(props.longitude)}`;
 
   return `
     <div class="marker-popup">
-      <h3>${nama}</h3>
-      <p><strong>No BP:</strong> ${noBp}</p>
-      <p><strong>Asal Sekolah:</strong> ${asalSekolah}</p>
-      <p><strong>Angkatan:</strong> ${angkatan}</p>
-      <p><strong>Jenis Kelamin:</strong> ${jenisKelamin}</p>
-      <p><strong>Jalur Masuk:</strong> ${jalur}</p>
+      <h3>${escapeHtml(nama)}</h3>
+      <p><strong>No BP:</strong> ${escapeHtml(noBp)}</p>
+      <p><strong>Asal Sekolah:</strong> ${escapeHtml(asalSekolah)}</p>
+      <p><strong>Alamat:</strong> ${escapeHtml(alamat)}</p>
+      <p><strong>Angkatan:</strong> ${escapeHtml(angkatan)}</p>
+      <p><strong>Jenis Kelamin:</strong> ${escapeHtml(jenisKelamin)}</p>
+      <p><strong>Jalur Masuk:</strong> ${escapeHtml(jalur)}</p>
+      <p><strong>Koordinat:</strong> ${escapeHtml(koordinat)}</p>
     </div>
   `;
 }
 
 function updateInfoPanel(props) {
+  const latitude = Number(props.latitude);
+  const longitude = Number(props.longitude);
+  const coordinateText =
+    Number.isFinite(latitude) && Number.isFinite(longitude)
+      ? `${formatCoordinate(latitude)}, ${formatCoordinate(longitude)}`
+      : "Koordinat tidak tersedia";
+
   document.getElementById("info-panel").innerHTML = `
     <h2>Info Mahasiswa</h2>
     <dl>
       <dt>Nama</dt>
-      <dd>${props.nama_lengkap || props.nama || "-"}</dd>
+      <dd>${escapeHtml(props.nama_lengkap || props.nama || "-")}</dd>
       <dt>No BP</dt>
-      <dd>${props.no_bp || "-"}</dd>
+      <dd>${escapeHtml(props.no_bp || "-")}</dd>
       <dt>Asal Sekolah</dt>
-      <dd>${props.asal_sekolah || "-"}</dd>
+      <dd>${escapeHtml(props.asal_sekolah || "-")}</dd>
+      <dt>Alamat</dt>
+      <dd>${escapeHtml(props.alamat || props.address || "Alamat belum tersimpan")}</dd>
       <dt>Angkatan</dt>
-      <dd>${props.angkatan || "-"}</dd>
+      <dd>${escapeHtml(props.angkatan || "-")}</dd>
       <dt>Jenis Kelamin</dt>
-      <dd>${formatJenisKelamin(props.jenis_kelamin)}</dd>
+      <dd>${escapeHtml(formatJenisKelamin(props.jenis_kelamin))}</dd>
       <dt>Jalur Masuk</dt>
-      <dd>${props.jalur_masuk || props.jalur || "Belum tersedia"}</dd>
+      <dd>${escapeHtml(props.jalur_masuk || props.jalur || "Belum tersedia")}</dd>
       <dt>Koordinat</dt>
-      <dd>${formatCoordinate(props.latitude)}, ${formatCoordinate(props.longitude)}</dd>
+      <dd>${coordinateText}</dd>
     </dl>
   `;
 }
@@ -346,6 +393,54 @@ function setMapView(view) {
   loadHeatmap();
 }
 
+function getViewFromPathname() {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+
+  if (path === "/") {
+    return "landing";
+  }
+
+  if (path === "/login") {
+    return "login";
+  }
+
+  if (path === "/admin/dashboard") {
+    return "dashboard";
+  }
+
+  if (path === "/admin/map") {
+    return "map";
+  }
+
+  if (path === "/admin/input") {
+    return "admin";
+  }
+
+  const view = path.split("/").filter(Boolean).pop();
+
+  return VIEW_PATHS.has(view) ? view : "landing";
+}
+
+function syncViewRoute(view, replace = false) {
+  const nextPath = VIEW_ROUTES[view] || "/";
+
+  if (window.location.pathname === nextPath) {
+    if (PROTECTED_VIEWS.has(view) && window.location.hash) {
+      window.history.replaceState({ view }, "", `${window.location.origin}${nextPath}${window.location.search}`);
+    }
+    return;
+  }
+
+  const nextUrl = `${window.location.origin}${nextPath}${window.location.search}`;
+
+  if (replace) {
+    window.history.replaceState({ view }, "", nextUrl);
+    return;
+  }
+
+  window.history.pushState({ view }, "", nextUrl);
+}
+
 function reloadActiveLayer() {
   if (currentView === "marker") {
     loadMarkers();
@@ -354,12 +449,28 @@ function reloadActiveLayer() {
   }
 }
 
+function isAuthenticated() {
+  return Boolean(sessionStorage.getItem(WEBGIS_ADMIN_TOKEN_KEY));
+}
+
+function requestLoginForView(view) {
+  sessionStorage.setItem(WEBGIS_PENDING_VIEW_KEY, view);
+
+  if (window.location.pathname !== "/login") {
+    window.history.pushState({ view: "login" }, "", `${window.location.origin}/login${window.location.search}`);
+  }
+
+  if (typeof window.openLoginModal === "function") {
+    window.openLoginModal({ viewAfterLogin: view });
+  }
+}
+
 document.getElementById("angkatan").addEventListener("change", reloadActiveLayer);
 document.getElementById("search-input").addEventListener("input", debounce(reloadActiveLayer));
 document.getElementById("marker-view").addEventListener("click", () => setMapView("marker"));
 document.getElementById("heatmap-view").addEventListener("click", () => setMapView("heatmap"));
 
-document.querySelectorAll(".module-button").forEach((button) => {
+document.querySelectorAll("[data-view]").forEach((button) => {
   button.addEventListener("click", () => {
     if (button.dataset.view === "admin" && typeof window.openAdminView === "function") {
       window.openAdminView();
@@ -367,19 +478,32 @@ document.querySelectorAll(".module-button").forEach((button) => {
     }
 
     setContentView(button.dataset.view);
+
+    if (button.dataset.scrollTarget) {
+      setTimeout(() => {
+        document.getElementById(button.dataset.scrollTarget)?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 80);
+    }
   });
 });
 
 function setContentView(view) {
-  document.querySelectorAll(".module-button").forEach((button) => {
-    button.classList.toggle("active", button.dataset.view === view);
-  });
+  const resolvedView = VIEW_PATHS.has(view) ? view : "landing";
+  const visualView = resolvedView === "login" ? "landing" : resolvedView;
 
-  document.querySelectorAll(".content-view").forEach((contentView) => {
-    contentView.classList.toggle("active", contentView.id === `${view}-view`);
-  });
+  if (PROTECTED_VIEWS.has(visualView) && !isAuthenticated()) {
+    requestLoginForView(resolvedView);
+    showVisualView("landing");
+    return;
+  }
 
-  if (view === "map") {
+  showVisualView(visualView);
+  syncViewRoute(resolvedView);
+
+  if (visualView === "map") {
     setTimeout(() => {
       map.invalidateSize();
       if (!mapLoaded) {
@@ -390,5 +514,24 @@ function setContentView(view) {
   }
 }
 
+function showVisualView(visualView) {
+  document.querySelector(".landing-header").classList.toggle("hidden", visualView !== "landing");
+  document.querySelector(".app-header").classList.toggle("hidden", visualView === "landing");
+  document.getElementById("app-workspace").classList.toggle("hidden", visualView === "landing");
+
+  document.querySelectorAll(".module-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.view === visualView);
+  });
+
+  document.querySelectorAll(".content-view").forEach((contentView) => {
+    contentView.classList.toggle("active", contentView.id === `${visualView}-view`);
+  });
+}
+
 window.setContentView = setContentView;
-setContentView("dashboard");
+
+window.addEventListener("popstate", () => {
+  setContentView(getViewFromPathname());
+});
+
+setContentView(getViewFromPathname());

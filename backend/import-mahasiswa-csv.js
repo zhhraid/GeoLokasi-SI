@@ -13,6 +13,7 @@ const INSERT_COLUMNS = [
   "nama_lengkap",
   "jenis_kelamin",
   "asal_sekolah",
+  "alamat",
   "longitude",
   "latitude",
   "jalur_masuk",
@@ -55,11 +56,13 @@ async function main() {
       nama_lengkap VARCHAR(150),
       jenis_kelamin VARCHAR(10),
       asal_sekolah VARCHAR(200),
+      alamat TEXT,
       longitude NUMERIC(12,8),
       latitude NUMERIC(12,8),
       jalur_masuk VARCHAR(20) NULL
     )
   `);
+  await connection.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS alamat TEXT");
 
   const csv = fs.readFileSync(CSV_PATH, "utf8").trim();
   const rows = parseMahasiswaCsv(csv).map((row) => INSERT_COLUMNS.map((column) => row[column]));

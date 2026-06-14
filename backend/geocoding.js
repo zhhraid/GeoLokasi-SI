@@ -198,7 +198,6 @@ async function geocodeMahasiswaRows(rows) {
     const { row, rowNumber } = item;
 
     if (row.latitude !== null && row.longitude !== null) {
-      delete row.alamat;
       resolvedRows.push(row);
       continue;
     }
@@ -226,7 +225,6 @@ async function geocodeMahasiswaRows(rows) {
 
     row.latitude = coordinates.latitude;
     row.longitude = coordinates.longitude;
-    delete row.alamat;
     resolvedRows.push(row);
     geocoded += 1;
     if (coordinates.approximate) approximate += 1;

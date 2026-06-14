@@ -4,12 +4,18 @@
   "description": "Pembangunan WebGIS untuk Pemetaan Persebaran Daerah Asal Mahasiswa Program Studi Sistem Informasi Universitas Andalas",
   "main": "backend/server.js",
   "scripts": {
-    "start": "node backend/server.js"
+    "build:css": "tailwindcss -i ./frontend/css/tailwind.css -o ./frontend/css/style.css",
+    "start": "npm run build:css && node backend/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "exceljs": "^4.4.0",
     "express": "^4.18.3",
     "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.17"
   }
 }

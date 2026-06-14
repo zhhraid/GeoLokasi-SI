@@ -18,8 +18,25 @@
     />
     <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body class="auth-locked">
-    <header class="app-header">
+  <body>
+    <header class="landing-header">
+      <div class="brand">
+        <div class="brand-mark">AS</div>
+        <div class="brand-logo">AsalSI WebGIS</div>
+        <div class="brand-subtitle">
+          WebGIS persebaran daerah asal mahasiswa Sistem Informasi Unand
+        </div>
+      </div>
+      <nav class="landing-nav" aria-label="Navigasi landing page">
+        <a class="landing-nav-link" href="#home">Home</a>
+        <a class="landing-nav-link" href="#fitur">Fitur</a>
+        <a class="landing-nav-link" href="#alur">Alur</a>
+        <a class="landing-nav-link" href="#tentang">Tentang</a>
+      </nav>
+      <button class="topbar-button login-trigger" type="button">Login</button>
+    </header>
+
+    <header class="app-header hidden">
       <div class="brand">
         <div class="brand-mark">AS</div>
         <div class="brand-logo">AsalSI WebGIS</div>
@@ -44,7 +61,139 @@
       </div>
     </header>
 
-    <main class="webgis-layout">
+    <main>
+      <section
+        id="landing-view"
+        class="content-view landing-view active"
+        aria-label="Landing page AsalSI WebGIS"
+      >
+        <section id="home" class="landing-hero">
+          <div class="landing-hero-copy">
+            <span class="eyebrow">AsalSI WebGIS</span>
+            <h1>Pemetaan asal mahasiswa Sistem Informasi Universitas Andalas</h1>
+            <p>
+              Platform analisis spasial akademik untuk membaca persebaran asal
+              sekolah, jalur masuk, angkatan, dan pola geografis mahasiswa
+              secara ringkas, visual, dan mudah ditindaklanjuti.
+            </p>
+          </div>
+        </section>
+
+        <section id="fitur" class="landing-section">
+          <div class="landing-section-header">
+            <span class="eyebrow">Kapabilitas</span>
+            <h2>Dirancang untuk kebutuhan analisis spasial akademik</h2>
+            <p>
+              Modul utama AsalSI membantu admin mengelola data dan mahasiswa SI
+              memahami pola persebaran asal sekolah secara visual.
+            </p>
+          </div>
+          <div class="landing-card-grid">
+            <article>
+              <span class="landing-icon">01</span>
+              <strong>Dashboard Analitik</strong>
+              <p>
+                Ringkasan total mahasiswa, angkatan aktif, jalur dominan,
+                sekolah dominan, dan tren terbaru dalam satu tampilan.
+              </p>
+            </article>
+            <article>
+              <span class="landing-icon">02</span>
+              <strong>Peta Persebaran</strong>
+              <p>
+                Marker dan heatmap membantu membaca konsentrasi daerah asal
+                mahasiswa secara cepat.
+              </p>
+            </article>
+            <article>
+              <span class="landing-icon">03</span>
+              <strong>Filter Data</strong>
+              <p>
+                Filter angkatan, jalur penerimaan, dan pencarian sekolah
+                membuat eksplorasi data lebih terarah.
+              </p>
+            </article>
+            <article>
+              <span class="landing-icon">04</span>
+              <strong>Administrasi Data</strong>
+              <p>
+                Import Excel, geocoding otomatis, input manual, pratinjau data,
+                dan export PDF untuk kebutuhan pelaporan.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="alur" class="landing-section workflow-section">
+          <div class="landing-section-header">
+            <span class="eyebrow">Alur Sistem</span>
+            <h2>Dari data mahasiswa menjadi wawasan spasial</h2>
+          </div>
+          <div class="workflow-grid">
+            <article>
+              <span>Import</span>
+              <strong>Unggah data mahasiswa</strong>
+              <p>Admin memasukkan data Excel atau menambah data satuan.</p>
+            </article>
+            <article>
+              <span>Geocode</span>
+              <strong>Terjemahkan alamat</strong>
+              <p>Alamat asal sekolah diproses menjadi koordinat peta.</p>
+            </article>
+            <article>
+              <span>Analisis</span>
+              <strong>Baca persebaran</strong>
+              <p>Dashboard dan peta menyajikan pola angkatan, jalur, dan lokasi.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="tentang" class="landing-section team-section">
+          <div class="landing-section-header">
+            <span class="eyebrow">Tentang</span>
+            <h2>Tim pengembang AsalSI WebGIS</h2>
+            <p>
+              Dikembangkan sebagai sistem akademik oleh enam anggota tim dengan
+              pembagian peran pada antarmuka, API, database, GIS, analitik, dan
+              pengujian.
+            </p>
+          </div>
+          <div class="team-grid">
+            <article class="team-card">
+              <img src="images/keziaa.jpeg" alt="Foto Kezia Valerina Damanik" />
+              <strong>Kezia Valerina Damanik</strong>
+              <small>2311522010 - Frontend & UI</small>
+            </article>
+            <article class="team-card">
+              <span>API</span>
+              <strong>Anggota Tim</strong>
+              <small>Backend API</small>
+            </article>
+            <article class="team-card">
+              <span>DB</span>
+              <strong>Anggota Tim</strong>
+              <small>Database</small>
+            </article>
+            <article class="team-card">
+              <span>GIS</span>
+              <strong>Anggota Tim</strong>
+              <small>GIS & Geocoding</small>
+            </article>
+            <article class="team-card">
+              <span>AN</span>
+              <strong>Anggota Tim</strong>
+              <small>Analitik Data</small>
+            </article>
+            <article class="team-card">
+              <span>QA</span>
+              <strong>Anggota Tim</strong>
+              <small>Dokumentasi & QA</small>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <div id="app-workspace" class="webgis-layout hidden">
       <aside class="app-sidebar">
         <section class="panel hero-panel">
           <span class="eyebrow">Sistem Informasi Unand</span>
@@ -136,6 +285,37 @@
           </article>
         </div>
 
+        <section class="panel insight-panel">
+          <div class="section-title">Insight Otomatis</div>
+          <div class="insight-grid">
+            <article>
+              <span>Rata-rata per Angkatan</span>
+              <strong id="insight-average-cohort">-</strong>
+              <small id="insight-average-cohort-detail">Menunggu data</small>
+            </article>
+            <article>
+              <span>Konsentrasi Top 5 Sekolah</span>
+              <strong id="insight-top-school-share">-</strong>
+              <small id="insight-top-school-share-detail">Menunggu data</small>
+            </article>
+            <article>
+              <span>Porsi Jalur Dominan</span>
+              <strong id="insight-top-jalur-share">-</strong>
+              <small id="insight-top-jalur-share-detail">Menunggu data</small>
+            </article>
+            <article>
+              <span>Perubahan Angkatan Terbaru</span>
+              <strong id="insight-latest-delta">-</strong>
+              <small id="insight-latest-delta-detail">Menunggu data</small>
+            </article>
+          </div>
+          <div class="insight-summary">
+            <p id="insight-narrative">
+              Insight akan muncul otomatis setelah statistik berhasil dimuat.
+            </p>
+          </div>
+        </section>
+
         <div class="dashboard-grid">
           <section class="panel dashboard-card">
             <div class="section-title">Tren Per Angkatan</div>
@@ -160,6 +340,14 @@
             </div>
           </section>
         </div>
+
+        <section class="panel dashboard-card school-focus-card">
+          <div class="section-title">Sekolah Penyumbang Teratas</div>
+          <div id="top-school-list" class="top-school-list">
+            <p class="admin-message">Menunggu data ranking asal sekolah.</p>
+          </div>
+        </section>
+
       </section>
 
       <section
@@ -461,11 +649,12 @@
           </div>
         </section>
       </section>
+      </div>
     </main>
 
     <div
       id="login-modal"
-      class="login-modal"
+      class="login-modal hidden"
       role="dialog"
       aria-modal="true"
       aria-labelledby="login-title"

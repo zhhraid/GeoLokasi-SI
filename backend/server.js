@@ -30,6 +30,14 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/mahasiswa", mahasiswaRoutes);
 app.use("/api/stats", statsRoutes);
 
+app.get(["/dashboard", "/map", "/admin"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+});
+
+app.get(/^\/(?!api(?:\/|$)).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+});
+
 app.listen(PORT, () => {
   console.log(`AsalSI WebGIS backend running on port ${PORT}`);
 });

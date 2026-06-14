@@ -44,3 +44,5 @@ reports/
 # Temporary files
 tmp/
 temp/
+~$*
+*.tmp

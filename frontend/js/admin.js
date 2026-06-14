@@ -17,7 +17,9 @@ const manualLatitudeInput = document.getElementById("manual-latitude");
 const manualLongitudeInput = document.getElementById("manual-longitude");
 const manualGeocodingButton = document.getElementById("manual-geocoding-button");
 const manualGeocodingStatus = document.getElementById("manual-geocoding-status");
+const PENDING_VIEW_KEY = "asalsi_pending_view";
 let openAdminAfterLogin = false;
+let viewAfterLogin = null;
 
 localStorage.removeItem(ADMIN_TOKEN_KEY);
 localStorage.removeItem(ADMIN_ROLE_KEY);
@@ -76,12 +78,9 @@ function updateAuthButtons() {
   adminLogoutButton.classList.toggle("hidden", !isLoggedIn);
   adminMenuButton.classList.toggle("hidden", !isAdmin);
   adminStatus.textContent = isAdmin ? "Admin aktif" : "Perlu login";
-  document.body.classList.toggle("auth-locked", !isLoggedIn);
 
   if (isLoggedIn) {
     hideLoginModal();
-  } else {
-    showLoginModal();
   }
 }
 
@@ -90,13 +89,27 @@ function showLoginModal(options = {}) {
     openAdminAfterLogin = true;
   }
 
-  document.body.classList.add("auth-locked");
+  if (options.viewAfterLogin) {
+    viewAfterLogin = options.viewAfterLogin;
+    sessionStorage.setItem(PENDING_VIEW_KEY, options.viewAfterLogin);
+  }
+
+  if (window.location.pathname !== "/login") {
+    window.history.pushState({ view: "login" }, "", `${window.location.origin}/login${window.location.search}`);
+  }
+
+  if (typeof window.setContentView === "function") {
+    window.setContentView("login");
+  }
+
+  document.body.classList.add("modal-open");
   loginModal.classList.remove("hidden");
   loginStatus.textContent = "Masuk untuk membuka dashboard WebGIS.";
-  document.getElementById("admin-username").focus();
+  setTimeout(() => document.getElementById("admin-username").focus(), 50);
 }
 
 function hideLoginModal() {
+  document.body.classList.remove("modal-open");
   loginModal.classList.add("hidden");
 }
 
@@ -205,8 +218,13 @@ async function loadAdminPanel() {
 }
 
 window.openAdminView = loadAdminPanel;
+window.openLoginModal = showLoginModal;
 
-adminLoginButton.addEventListener("click", showLoginModal);
+adminLoginButton.addEventListener("click", () => showLoginModal({ viewAfterLogin: "dashboard" }));
+
+document.querySelectorAll(".login-trigger").forEach((button) => {
+  button.addEventListener("click", () => showLoginModal({ viewAfterLogin: "dashboard" }));
+});
 
 document.getElementById("admin-login-form").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -235,12 +253,16 @@ document.getElementById("admin-login-form").addEventListener("submit", async (ev
 
     if (openAdminAfterLogin && data.role === "admin") {
       openAdminAfterLogin = false;
+      sessionStorage.removeItem(PENDING_VIEW_KEY);
       await loadAdminPanel();
       return;
     }
 
     openAdminAfterLogin = false;
-    window.setContentView("dashboard");
+    const nextView = viewAfterLogin || sessionStorage.getItem(PENDING_VIEW_KEY) || "dashboard";
+    viewAfterLogin = null;
+    sessionStorage.removeItem(PENDING_VIEW_KEY);
+    window.setContentView(nextView === "admin" && data.role !== "admin" ? "dashboard" : nextView);
   } catch (error) {
     loginStatus.textContent = error.message;
   }
@@ -257,7 +279,8 @@ adminLogoutButton.addEventListener("click", async () => {
 
   setAuthSession(null);
   updateAuthButtons();
-  window.setContentView("dashboard");
+  sessionStorage.removeItem(PENDING_VIEW_KEY);
+  window.setContentView("landing");
 });
 
 document.getElementById("csv-import-form").addEventListener("submit", async (event) => {
@@ -368,3 +391,7 @@ document.getElementById("admin-refresh-button").addEventListener("click", () => 
   loadAdminRows();
 });
 updateAuthButtons();
+
+if (window.location.pathname.replace(/\/+$/, "") === "/login" && !getAdminToken()) {
+  showLoginModal({ viewAfterLogin: sessionStorage.getItem(PENDING_VIEW_KEY) || "dashboard" });
+}

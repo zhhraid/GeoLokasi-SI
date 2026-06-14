@@ -14,6 +14,10 @@ const router = express.Router();
 
 router.use(requireAdmin);
 
+async function ensureMahasiswaAlamatColumn() {
+  await pool.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS alamat TEXT");
+}
+
 function buildSearchFilter(query) {
   const values = [];
   let whereClause = "";
@@ -58,21 +62,22 @@ async function upsertMahasiswaRows(client, rows) {
     row.nama_lengkap,
     row.jenis_kelamin,
     row.asal_sekolah,
+    row.alamat || null,
     row.longitude,
     row.latitude,
     row.jalur_masuk,
   ]);
   const placeholders = normalizedRows
     .map((row, rowIndex) => {
-      const start = rowIndex * 9;
-      return `(${Array.from({ length: 9 }, (_, columnIndex) => `$${start + columnIndex + 1}`).join(", ")})`;
+      const start = rowIndex * 10;
+      return `(${Array.from({ length: 10 }, (_, columnIndex) => `$${start + columnIndex + 1}`).join(", ")})`;
     })
     .join(", ");
 
   const result = await client.query(
     `
       INSERT INTO mahasiswa
-      (id, no_bp, angkatan, nama_lengkap, jenis_kelamin, asal_sekolah, longitude, latitude, jalur_masuk)
+      (id, no_bp, angkatan, nama_lengkap, jenis_kelamin, asal_sekolah, alamat, longitude, latitude, jalur_masuk)
       VALUES ${placeholders}
       ON CONFLICT (id) DO UPDATE SET
         no_bp = EXCLUDED.no_bp,
@@ -80,6 +85,7 @@ async function upsertMahasiswaRows(client, rows) {
         nama_lengkap = EXCLUDED.nama_lengkap,
         jenis_kelamin = EXCLUDED.jenis_kelamin,
         asal_sekolah = EXCLUDED.asal_sekolah,
+        alamat = EXCLUDED.alamat,
         longitude = EXCLUDED.longitude,
         latitude = EXCLUDED.latitude,
         jalur_masuk = EXCLUDED.jalur_masuk
@@ -92,6 +98,7 @@ async function upsertMahasiswaRows(client, rows) {
 
 router.get("/dashboard", async (req, res) => {
   try {
+    await ensureMahasiswaAlamatColumn();
     const [summaryResult, jalurResult, recentResult] = await Promise.all([
       pool.query(`
         SELECT
@@ -108,7 +115,7 @@ router.get("/dashboard", async (req, res) => {
       `),
       pool.query(`
         SELECT id, no_bp, angkatan, nama_lengkap, jenis_kelamin,
-               asal_sekolah, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
+               asal_sekolah, alamat, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
         FROM mahasiswa
         ORDER BY id DESC
         LIMIT 8
@@ -137,6 +144,7 @@ router.get("/dashboard", async (req, res) => {
 
 router.get("/mahasiswa", async (req, res) => {
   try {
+    await ensureMahasiswaAlamatColumn();
     const limit = Math.min(Number(req.query.limit || 100), 300);
     const { values, whereClause } = buildSearchFilter(req.query);
     values.push(limit);
@@ -144,7 +152,7 @@ router.get("/mahasiswa", async (req, res) => {
     const result = await pool.query(
       `
         SELECT id, no_bp, angkatan, nama_lengkap, jenis_kelamin,
-               asal_sekolah, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
+               asal_sekolah, alamat, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
         FROM mahasiswa
         ${whereClause}
         ORDER BY id DESC
@@ -197,6 +205,7 @@ router.post("/mahasiswa", async (req, res) => {
   }
 
   try {
+    await ensureMahasiswaAlamatColumn();
     const result = await geocodeMahasiswaRows([{ row, rowNumber: 1 }]);
 
     if (result.rejectedRows.length > 0) {
@@ -237,6 +246,7 @@ router.post("/mahasiswa/import", async (req, res) => {
   let sourceSheet = null;
 
   try {
+    await ensureMahasiswaAlamatColumn();
     if (req.body?.excelBase64) {
       const parsedWorkbook = await parseMahasiswaWorkbook(Buffer.from(req.body.excelBase64, "base64"));
       rows = parsedWorkbook.rows;
