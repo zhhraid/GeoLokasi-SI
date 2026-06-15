@@ -263,6 +263,40 @@ router.get("/mahasiswa/export", async (req, res) => {
   }
 });
 
+router.get("/mahasiswa/:id", async (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ message: "ID mahasiswa tidak valid" });
+    return;
+  }
+
+  try {
+    await ensureMahasiswaAlamatColumn();
+    const result = await pool.query(
+      `
+        SELECT id, no_bp, angkatan, nama_lengkap, jenis_kelamin,
+               asal_sekolah, alamat, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
+        FROM mahasiswa
+        WHERE id = $1
+      `,
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      res.status(404).json({ message: "Data mahasiswa tidak ditemukan" });
+      return;
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({
+      message: "Gagal mengambil detail mahasiswa",
+      error: error.message,
+    });
+  }
+});
+
 router.post("/geocode", async (req, res) => {
   const alamat = String(req.body?.alamat || "").trim();
 
@@ -329,6 +363,86 @@ router.post("/mahasiswa", async (req, res) => {
   } catch (error) {
     res.status(502).json({
       message: "Gagal melakukan geocoding atau menyimpan data mahasiswa",
+      error: error.message,
+    });
+  }
+});
+
+router.put("/mahasiswa/:id", async (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  const row = normalizeMahasiswaRow({ ...req.body, id });
+  const errors = validateMahasiswa(row);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ message: "ID mahasiswa tidak valid" });
+    return;
+  }
+
+  if (errors.length > 0) {
+    res.status(400).json({ message: "Data mahasiswa belum valid", errors });
+    return;
+  }
+
+  try {
+    await ensureMahasiswaAlamatColumn();
+    const existing = await pool.query("SELECT id FROM mahasiswa WHERE id = $1", [id]);
+
+    if (existing.rowCount === 0) {
+      res.status(404).json({ message: "Data mahasiswa tidak ditemukan" });
+      return;
+    }
+
+    const geocodingResult = await geocodeMahasiswaRows([{ row, rowNumber: 1 }]);
+
+    if (geocodingResult.rejectedRows.length > 0) {
+      res.status(422).json({
+        message: "Alamat atau koordinat tidak valid",
+        errors: geocodingResult.rejectedRows[0].errors,
+      });
+      return;
+    }
+
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      await upsertMahasiswaRows(client, geocodingResult.rows);
+      await client.query("COMMIT");
+      res.json({ message: "Data mahasiswa berhasil diperbarui" });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Gagal memperbarui data mahasiswa",
+      error: error.message,
+    });
+  }
+});
+
+router.delete("/mahasiswa/:id", async (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ message: "ID mahasiswa tidak valid" });
+    return;
+  }
+
+  try {
+    const result = await pool.query("DELETE FROM mahasiswa WHERE id = $1 RETURNING id", [id]);
+
+    if (result.rowCount === 0) {
+      res.status(404).json({ message: "Data mahasiswa tidak ditemukan" });
+      return;
+    }
+
+    res.json({ message: "Data mahasiswa berhasil dihapus" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Gagal menghapus data mahasiswa",
       error: error.message,
     });
   }
