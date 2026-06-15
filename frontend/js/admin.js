@@ -199,7 +199,7 @@ function renderAdminTable(rows, pagination) {
   if (rows.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7">Belum ada data yang cocok. Import CSV atau isi form manual terlebih dahulu.</td>
+        <td colspan="8">Belum ada data yang cocok. Import CSV atau isi form manual terlebih dahulu.</td>
       </tr>
     `;
     adminTableStatus.textContent = "Belum ada data untuk ditampilkan.";
@@ -215,6 +215,7 @@ function renderAdminTable(rows, pagination) {
         <td>${escapeHtml(row.angkatan)}</td>
         <td>${escapeHtml(row.jenis_kelamin)}</td>
         <td>${escapeHtml(row.asal_sekolah)}</td>
+        <td>${escapeHtml(row.alamat || "-")}</td>
         <td><span class="jalur-badge">${escapeHtml(row.jalur_masuk || "-")}</span></td>
         <td>${escapeHtml(formatCoordinate(row.latitude, row.longitude))}</td>
       </tr>

@@ -92,6 +92,14 @@ async function main() {
   const countResult = await connection.query("SELECT COUNT(*) AS total FROM mahasiswa");
   console.log(`Import berhasil: ${countResult.rows[0].total} data dari ${CSV_PATH} masuk ke database ${DB_NAME}.`);
 
+  const updateSqlPath = path.join(__dirname, "update_alamat_mahasiswa.sql");
+  if (fs.existsSync(updateSqlPath)) {
+    console.log("Menjalankan update_alamat_mahasiswa.sql untuk melengkapi data alamat...");
+    const updateSql = fs.readFileSync(updateSqlPath, "utf8");
+    await connection.query(updateSql);
+    console.log("Alamat mahasiswa berhasil diperbarui secara otomatis!");
+  }
+
   await connection.end();
 }
 

@@ -809,7 +809,7 @@ function buildReportHtml(summary, rankingRows, options = {}) {
       <h2>Data Mahasiswa Sesuai Filter</h2>
       <table>
         <thead>
-          <tr><th>No</th><th>No BP</th><th>Nama</th><th>Angkatan</th><th>JK</th><th>Asal Sekolah</th><th>Jalur</th></tr>
+          <tr><th>No</th><th>No BP</th><th>Nama</th><th>Angkatan</th><th>JK</th><th>Asal Sekolah</th><th>Alamat</th><th>Jalur</th></tr>
         </thead>
         <tbody>${renderReportRows(studentRows, [
           { key: "no_bp" },
@@ -817,6 +817,7 @@ function buildReportHtml(summary, rankingRows, options = {}) {
           { key: "angkatan" },
           { key: "jenis_kelamin" },
           { key: "asal_sekolah" },
+          { key: "alamat" },
           { key: "jalur_masuk" },
         ])}</tbody>
       </table>

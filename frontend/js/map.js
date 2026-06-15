@@ -296,6 +296,7 @@ function normalizeFeatureProperties(feature, latlng) {
 }
 
 function createPopupContent(props) {
+  console.log("DEBUG createPopupContent props:", props);
   const nama = props.nama_lengkap || props.nama || "-";
   const noBp = props.no_bp || "-";
   const asalSekolah = props.asal_sekolah || "-";
@@ -303,7 +304,7 @@ function createPopupContent(props) {
   const angkatan = props.angkatan || "-";
   const jenisKelamin = formatJenisKelamin(props.jenis_kelamin);
   const jalur = props.jalur_masuk || props.jalur || "Belum tersedia";
-  const koordinat = `${formatCoordinate(props.latitude)}, ${formatCoordinate(props.longitude)}`;
+  const koordinat = `${formatSingleCoordinate(props.latitude)}, ${formatSingleCoordinate(props.longitude)}`;
 
   return `
     <div class="marker-popup">
@@ -320,11 +321,12 @@ function createPopupContent(props) {
 }
 
 function updateInfoPanel(props) {
+  console.log("DEBUG updateInfoPanel props:", props);
   const latitude = Number(props.latitude);
   const longitude = Number(props.longitude);
   const coordinateText =
     Number.isFinite(latitude) && Number.isFinite(longitude)
-      ? `${formatCoordinate(latitude)}, ${formatCoordinate(longitude)}`
+      ? `${formatSingleCoordinate(latitude)}, ${formatSingleCoordinate(longitude)}`
       : "Koordinat tidak tersedia";
 
   document.getElementById("info-panel").innerHTML = `
@@ -356,7 +358,7 @@ function formatJenisKelamin(value) {
   return value || "-";
 }
 
-function formatCoordinate(value) {
+function formatSingleCoordinate(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number.toFixed(6) : "-";
 }
