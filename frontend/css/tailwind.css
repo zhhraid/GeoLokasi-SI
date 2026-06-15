@@ -79,11 +79,15 @@
   }
 
   .landing-brand {
-    @apply inline-flex w-fit items-center rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    @apply inline-flex w-fit min-w-0 items-center gap-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
   }
 
-  .landing-brand img {
-    @apply h-11 w-auto max-w-[11rem] rounded-lg object-contain md:h-14 md:max-w-[14rem];
+  .brand-logo-mark {
+    @apply h-14 w-auto shrink-0 object-contain md:h-16;
+  }
+
+  .brand-logo-wordmark {
+    @apply h-12 w-auto min-w-0 max-w-[13rem] object-contain md:h-14 md:max-w-[17rem];
   }
 
   .landing-header .topbar-button {
@@ -91,11 +95,15 @@
   }
 
   .app-brand-logo {
-    @apply inline-flex w-fit items-center rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    @apply inline-flex w-fit min-w-0 items-center gap-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
   }
 
-  .app-brand-logo img {
-    @apply h-11 w-auto max-w-[11rem] rounded-lg object-contain md:h-12 md:max-w-[13rem];
+  .app-brand-logo .brand-logo-mark {
+    @apply h-12 md:h-14;
+  }
+
+  .app-brand-logo .brand-logo-wordmark {
+    @apply h-10 max-w-[12rem] md:h-12 md:max-w-[15rem];
   }
 
   .brand {

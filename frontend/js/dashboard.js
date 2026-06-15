@@ -373,7 +373,7 @@ function renderDashboardInsights(summary, rankingRows) {
 
 function renderTopSchoolList(rows, totalMahasiswa) {
   const container = document.getElementById("top-school-list");
-  const topRows = rows.slice(0, 6);
+  const topRows = rows.slice(0, 5);
 
   if (!topRows.length) {
     container.innerHTML = '<p class="admin-message">Data ranking asal sekolah belum tersedia.</p>';

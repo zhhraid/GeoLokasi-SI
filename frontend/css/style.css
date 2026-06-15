@@ -692,7 +692,9 @@ a{
   display: inline-flex;
   width: -moz-fit-content;
   width: fit-content;
+  min-width: 0px;
   align-items: center;
+  gap: 0.5rem;
   border-radius: 0.75rem;
 }
 
@@ -707,19 +709,33 @@ a{
   --tw-ring-offset-width: 2px;
 }
 
-.landing-brand img{
-  height: 2.75rem;
+.brand-logo-mark{
+  height: 3.5rem;
   width: auto;
-  max-width: 11rem;
-  border-radius: 0.5rem;
+  flex-shrink: 0;
   -o-object-fit: contain;
      object-fit: contain;
 }
 
 @media (min-width: 768px){
-  .landing-brand img{
+  .brand-logo-mark{
+    height: 4rem;
+  }
+}
+
+.brand-logo-wordmark{
+  height: 3rem;
+  width: auto;
+  min-width: 0px;
+  max-width: 13rem;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+@media (min-width: 768px){
+  .brand-logo-wordmark{
     height: 3.5rem;
-    max-width: 14rem;
+    max-width: 17rem;
   }
 }
 
@@ -734,7 +750,9 @@ a{
   display: inline-flex;
   width: -moz-fit-content;
   width: fit-content;
+  min-width: 0px;
   align-items: center;
+  gap: 0.5rem;
   border-radius: 0.75rem;
 }
 
@@ -749,19 +767,25 @@ a{
   --tw-ring-offset-width: 2px;
 }
 
-.app-brand-logo img{
-  height: 2.75rem;
-  width: auto;
-  max-width: 11rem;
-  border-radius: 0.5rem;
-  -o-object-fit: contain;
-     object-fit: contain;
+.app-brand-logo .brand-logo-mark{
+  height: 3rem;
 }
 
 @media (min-width: 768px){
-  .app-brand-logo img{
+  .app-brand-logo .brand-logo-mark{
+    height: 3.5rem;
+  }
+}
+
+.app-brand-logo .brand-logo-wordmark{
+  height: 2.5rem;
+  max-width: 12rem;
+}
+
+@media (min-width: 768px){
+  .app-brand-logo .brand-logo-wordmark{
     height: 3rem;
-    max-width: 13rem;
+    max-width: 15rem;
   }
 }
 
