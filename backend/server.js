@@ -39,5 +39,5 @@ app.get(/^\/(?!api(?:\/|$)).*/, (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`AsalSI WebGIS backend running on port ${PORT}`);
+  console.log(`GeoSIS backend running on port ${PORT}`);
 });

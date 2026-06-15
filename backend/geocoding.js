@@ -5,7 +5,7 @@ loadEnv();
 const GEOCODING_URL = process.env.GEOCODING_URL || "https://nominatim.openstreetmap.org/search";
 const GEOCODING_DELAY_MS = Number(process.env.GEOCODING_DELAY_MS || 1100);
 const USER_AGENT =
-  process.env.GEOCODING_USER_AGENT || "AsalSI-WebGIS/1.0 (geocoding alamat mahasiswa)";
+  process.env.GEOCODING_USER_AGENT || "GeoSIS/1.0 (geocoding alamat mahasiswa)";
 const FALLBACK_LOCATION = {
   latitude: Number(process.env.GEOCODING_FALLBACK_LATITUDE || -0.9471),
   longitude: Number(process.env.GEOCODING_FALLBACK_LONGITUDE || 100.4172),

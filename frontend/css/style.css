@@ -1602,6 +1602,12 @@ a{
   }
 }
 
+@media (min-width: 1280px){
+  .landing-three-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .landing-card-grid article{
   position: relative;
   overflow: hidden;
@@ -1650,6 +1656,89 @@ a{
   background-color: rgb(255 255 255 / 0.6);
 }
 
+.landing-split-section,
+  .analysis-section,
+  .faq-section{
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(226 232 240 / var(--tw-border-opacity, 1));
+  background-color: rgb(255 255 255 / 0.6);
+}
+
+.faq-section{
+  background-color: transparent;
+  background-image: none;
+}
+
+.analysis-grid{
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px){
+  .analysis-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px){
+  .analysis-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.analysis-grid article,
+  .module-preview-grid article,
+  .faq-grid article{
+  border-radius: 0.75rem;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(226 232 240 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+  padding: 1.25rem;
+  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.analysis-grid article:hover,
+  .module-preview-grid article:hover,
+  .faq-grid article:hover{
+  --tw-translate-y: -0.125rem;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  --tw-border-opacity: 1;
+  border-color: rgb(167 243 208 / var(--tw-border-opacity, 1));
+  --tw-shadow: 0 14px 34px rgba(15, 23, 42, 0.12);
+  --tw-shadow-colored: 0 14px 34px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.analysis-grid article strong,
+  .module-preview-grid article strong,
+  .faq-grid article strong{
+  display: block;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+  --tw-text-opacity: 1;
+  color: rgb(15 23 42 / var(--tw-text-opacity, 1));
+}
+
+.analysis-grid article p,
+  .module-preview-grid article p,
+  .faq-grid article p{
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  --tw-text-opacity: 1;
+  color: rgb(71 85 105 / var(--tw-text-opacity, 1));
+}
+
 .workflow-grid{
   display: grid;
   gap: 1rem;
@@ -1688,6 +1777,137 @@ a{
   margin-top: 0.5rem;
   font-size: 0.875rem;
   line-height: 1.5rem;
+  --tw-text-opacity: 1;
+  color: rgb(71 85 105 / var(--tw-text-opacity, 1));
+}
+
+.module-preview-grid{
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 768px){
+  .module-preview-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.module-preview-grid article{
+  position: relative;
+  overflow: hidden;
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+  --tw-text-opacity: 1;
+  color: rgb(15 23 42 / var(--tw-text-opacity, 1));
+}
+
+.module-preview-grid article::after{
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  right: 1.25rem;
+  bottom: 0px;
+  height: 0.25rem;
+  --tw-bg-opacity: 1;
+  background-color: rgb(16 185 129 / 0.5);
+}
+
+.module-preview-grid article span{
+  display: inline-flex;
+  border-radius: 9999px;
+  --tw-bg-opacity: 1;
+  background-color: rgb(236 253 245 / var(--tw-bg-opacity, 1));
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  --tw-text-opacity: 1;
+  color: rgb(6 78 59 / var(--tw-text-opacity, 1));
+}
+
+.module-preview-grid article strong{
+  margin-top: 0.75rem;
+  --tw-text-opacity: 1;
+  color: rgb(15 23 42 / var(--tw-text-opacity, 1));
+}
+
+.module-preview-grid article p{
+  --tw-text-opacity: 1;
+  color: rgb(71 85 105 / var(--tw-text-opacity, 1));
+}
+
+.faq-grid{
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  max-width: 64rem;
+  gap: 1rem;
+}
+
+@media (min-width: 768px){
+  .faq-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.faq-grid article{
+  position: relative;
+  overflow: hidden;
+  --tw-border-opacity: 1;
+  border-color: rgb(209 250 229 / var(--tw-border-opacity, 1));
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+  padding-left: 4rem;
+  --tw-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --tw-shadow-colored: 0 10px 30px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.faq-grid article::before{
+  content: "?";
+  position: absolute;
+  left: 1.25rem;
+  top: 1.25rem;
+  display: grid;
+  height: 2rem;
+  width: 2rem;
+  place-items: center;
+  border-radius: 9999px;
+  --tw-bg-opacity: 1;
+  background-color: rgb(4 120 87 / var(--tw-bg-opacity, 1));
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.faq-grid article::after{
+  content: "";
+  position: absolute;
+  top: 1.25rem;
+  bottom: 1.25rem;
+  left: 0px;
+  width: 0.25rem;
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+  background-color: rgb(16 185 129 / 0.7);
+}
+
+.faq-grid article strong{
+  --tw-text-opacity: 1;
+  color: rgb(2 6 23 / var(--tw-text-opacity, 1));
+}
+
+.faq-grid article p{
   --tw-text-opacity: 1;
   color: rgb(71 85 105 / var(--tw-text-opacity, 1));
 }

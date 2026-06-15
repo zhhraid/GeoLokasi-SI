@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AsalSI WebGIS</title>
+    <title>GeoSIS</title>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -27,6 +27,7 @@
       <nav class="landing-nav" aria-label="Navigasi landing page">
         <a class="landing-nav-link" href="#home">Beranda</a>
         <a class="landing-nav-link" href="#fitur">Fitur</a>
+        <a class="landing-nav-link" href="#analisis">Analisis</a>
         <a class="landing-nav-link" href="#alur">Alur</a>
         <a class="landing-nav-link" href="#tentang">Tentang</a>
       </nav>
@@ -58,7 +59,7 @@
       <section
         id="landing-view"
         class="content-view landing-view active"
-        aria-label="Landing page AsalSI WebGIS"
+        aria-label="Landing page GeoSIS"
       >
         <section id="home" class="landing-hero">
           <div class="landing-hero-content">
@@ -173,7 +174,7 @@
             <span class="eyebrow">Kapabilitas</span>
             <h2>Dirancang untuk kebutuhan analisis spasial akademik</h2>
             <p>
-              Modul utama AsalSI membantu admin mengelola data dan mahasiswa SI
+              Modul utama GeoSIS membantu admin mengelola data dan mahasiswa SI
               memahami pola persebaran asal sekolah secara visual.
             </p>
           </div>
@@ -213,6 +214,82 @@
           </div>
         </section>
 
+        <section id="kebutuhan" class="landing-section landing-split-section">
+          <div class="landing-section-header">
+            <span class="eyebrow">Latar Belakang</span>
+            <h2>Mengapa GeoSIS dibutuhkan?</h2>
+            <p>
+              Data asal mahasiswa tidak hanya berupa tabel. Ketika divisualkan
+              secara spasial, pola daerah, sekolah, dan jalur masuk menjadi
+              lebih mudah dipahami.
+            </p>
+          </div>
+          <div class="landing-card-grid landing-three-grid">
+            <article>
+              <span class="landing-icon">01</span>
+              <strong>Data lebih mudah dibaca</strong>
+              <p>
+                Informasi asal mahasiswa diringkas menjadi grafik, ranking, dan
+                peta sehingga tidak perlu membaca data satu per satu.
+              </p>
+            </article>
+            <article>
+              <span class="landing-icon">02</span>
+              <strong>Pola persebaran terlihat</strong>
+              <p>
+                Titik lokasi dan heatmap membantu melihat konsentrasi daerah
+                asal mahasiswa Sistem Informasi Universitas Andalas.
+              </p>
+            </article>
+            <article>
+              <span class="landing-icon">03</span>
+              <strong>Mendukung evaluasi akademik</strong>
+              <p>
+                Hasil analisis dapat menjadi bahan pertimbangan untuk promosi,
+                pelaporan, dan pemahaman karakteristik mahasiswa baru.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="analisis" class="landing-section analysis-section">
+          <div class="landing-section-header">
+            <span class="eyebrow">Ruang Analisis</span>
+            <h2>Apa saja yang bisa dilihat di GeoSIS?</h2>
+            <p>
+              GeoSIS membantu membaca data mahasiswa dari beberapa sudut
+              pandang, mulai dari tren angkatan sampai sekolah penyumbang
+              terbanyak.
+            </p>
+          </div>
+          <div class="analysis-grid">
+            <article>
+              <strong>Persebaran wilayah</strong>
+              <p>Melihat lokasi asal mahasiswa melalui marker pada peta.</p>
+            </article>
+            <article>
+              <strong>Kepadatan lokasi</strong>
+              <p>Heatmap menampilkan area dengan konsentrasi mahasiswa tinggi.</p>
+            </article>
+            <article>
+              <strong>Tren angkatan</strong>
+              <p>Membandingkan jumlah mahasiswa berdasarkan tahun angkatan.</p>
+            </article>
+            <article>
+              <strong>Jalur penerimaan</strong>
+              <p>Mengetahui jalur masuk yang paling dominan pada data.</p>
+            </article>
+            <article>
+              <strong>Asal sekolah</strong>
+              <p>Menampilkan ranking sekolah penyumbang mahasiswa terbanyak.</p>
+            </article>
+            <article>
+              <strong>Data terfilter</strong>
+              <p>Mencari data berdasarkan nama, angkatan, sekolah, dan jalur.</p>
+            </article>
+          </div>
+        </section>
+
         <section id="alur" class="landing-section workflow-section">
           <div class="landing-section-header">
             <span class="eyebrow">Alur Sistem</span>
@@ -239,10 +316,80 @@
           </div>
         </section>
 
+        <section id="modul" class="landing-section">
+          <div class="landing-section-header">
+            <span class="eyebrow">Modul Sistem</span>
+            <h2>Tiga tampilan utama dalam satu sistem</h2>
+          </div>
+          <div class="module-preview-grid">
+            <article>
+              <span>Dashboard</span>
+              <strong>Ringkasan statistik mahasiswa</strong>
+              <p>
+                Menampilkan KPI, grafik tren, distribusi jalur, ranking sekolah,
+                dan insight otomatis dari data yang tersedia.
+              </p>
+            </article>
+            <article>
+              <span>Peta</span>
+              <strong>Visualisasi marker dan heatmap</strong>
+              <p>
+                Memudahkan eksplorasi lokasi asal mahasiswa dengan filter
+                angkatan, jalur masuk, dan pencarian data.
+              </p>
+            </article>
+            <article>
+              <span>Admin</span>
+              <strong>Pengelolaan data mahasiswa</strong>
+              <p>
+                Admin dapat menambah data manual, import Excel, melakukan
+                geocoding otomatis, mengedit data, dan export laporan.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="faq" class="landing-section faq-section">
+          <div class="landing-section-header">
+            <span class="eyebrow">FAQ</span>
+            <h2>Pertanyaan singkat tentang GeoSIS</h2>
+          </div>
+          <div class="faq-grid">
+            <article>
+              <strong>Siapa yang dapat mengelola data?</strong>
+              <p>
+                Pengelolaan data hanya dapat dilakukan oleh admin yang sudah
+                login ke sistem.
+              </p>
+            </article>
+            <article>
+              <strong>Apakah data bisa diimport dari Excel?</strong>
+              <p>
+                Bisa. GeoSIS menyediakan template Excel dan fitur import untuk
+                memasukkan banyak data sekaligus.
+              </p>
+            </article>
+            <article>
+              <strong>Apakah koordinat harus diisi manual?</strong>
+              <p>
+                Tidak selalu. Alamat dapat diproses melalui geocoding otomatis,
+                lalu hasil koordinat tetap bisa diperiksa sebelum disimpan.
+              </p>
+            </article>
+            <article>
+              <strong>Apakah laporan bisa disimpan?</strong>
+              <p>
+                Bisa. Data statistik dapat diexport menjadi laporan PDF untuk
+                kebutuhan dokumentasi dan pelaporan.
+              </p>
+            </article>
+          </div>
+        </section>
+
         <section id="tentang" class="landing-section team-section">
           <div class="landing-section-header">
             <span class="eyebrow">Tentang</span>
-            <h2>Tim pengembang AsalSI WebGIS</h2>
+            <h2>Tim pengembang GeoSIS</h2>
             <p>
               Dikembangkan sebagai sistem akademik oleh lima anggota tim dengan
               pembagian peran pada frontend, backend, GIS, dan geocoding.

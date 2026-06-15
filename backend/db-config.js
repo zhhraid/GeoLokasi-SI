@@ -14,11 +14,11 @@ function getDatabaseName() {
   const databaseUrl = getDatabaseUrl();
 
   if (!databaseUrl) {
-    return "asalsi_webgis";
+    return "geosis_webgis";
   }
 
   const parsedUrl = new URL(databaseUrl);
-  return decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, "")) || "asalsi_webgis";
+  return decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, "")) || "geosis_webgis";
 }
 
 function getDatabaseConfig() {

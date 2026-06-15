@@ -456,7 +456,7 @@ function buildReportHtml(summary, rankingRows, options = {}) {
     <html lang="id">
     <head>
       <meta charset="UTF-8">
-      <title>Laporan Statistik AsalSI WebGIS</title>
+      <title>Laporan Statistik GeoSIS</title>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
       <style>
         @page { size: A4 portrait; margin: 0; }
@@ -721,7 +721,7 @@ function buildReportHtml(summary, rankingRows, options = {}) {
       </div>
       <main class="report-page">
       <header class="report-header">
-        <div class="eyebrow">AsalSI WebGIS - Universitas Andalas</div>
+        <div class="eyebrow">GeoSIS - Universitas Andalas</div>
         <h1>Laporan Statistik Persebaran Asal Mahasiswa</h1>
         <div class="report-meta">
           <p>Program Studi Sistem Informasi Universitas Andalas</p>

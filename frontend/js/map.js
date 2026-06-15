@@ -10,8 +10,8 @@ const VIEW_ROUTES = {
   admin: "/admin/input",
 };
 const PROTECTED_VIEWS = new Set(["dashboard", "map", "admin"]);
-const WEBGIS_ADMIN_TOKEN_KEY = "asalsi_admin_token";
-const WEBGIS_PENDING_VIEW_KEY = "asalsi_pending_view";
+const WEBGIS_ADMIN_TOKEN_KEY = "geosis_admin_token";
+const WEBGIS_PENDING_VIEW_KEY = "geosis_pending_view";
 
 const jalurColors = {
   SNBP:     "#3b82f6",
@@ -308,7 +308,7 @@ function createPopupContent(props) {
   const jenisKelamin = formatJenisKelamin(props.jenis_kelamin);
   const jalur = props.jalur_masuk || props.jalur || "Belum tersedia";
   const koordinat = `${formatSingleCoordinate(props.latitude)}, ${formatSingleCoordinate(props.longitude)}`;
-  const isAdmin = sessionStorage.getItem("asalsi_admin_role") === "admin";
+  const isAdmin = sessionStorage.getItem("geosis_admin_role") === "admin";
 
   return `
     <div class="marker-popup location-detail-card">
@@ -339,7 +339,7 @@ function updateInfoPanel(props) {
       : "Koordinat tidak tersedia";
 
   const nama = props.nama_lengkap || props.nama || "-";
-  const isAdmin = sessionStorage.getItem("asalsi_admin_role") === "admin";
+  const isAdmin = sessionStorage.getItem("geosis_admin_role") === "admin";
   document.getElementById("info-panel").innerHTML = `
     <div class="info-card-header">
       <span class="location-avatar">${escapeHtml(String(nama).charAt(0).toUpperCase())}</span>
@@ -486,7 +486,7 @@ function syncMapAuthState() {
   }
 }
 
-window.addEventListener("asalsi:auth-changed", syncMapAuthState);
+window.addEventListener("geosis:auth-changed", syncMapAuthState);
 
 function isAuthenticated() {
   return Boolean(sessionStorage.getItem(WEBGIS_ADMIN_TOKEN_KEY));

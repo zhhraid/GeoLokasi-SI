@@ -1,6 +1,6 @@
 const ADMIN_API_BASE_URL = `${window.location.origin}/api`;
-const ADMIN_TOKEN_KEY = "asalsi_admin_token";
-const ADMIN_ROLE_KEY = "asalsi_admin_role";
+const ADMIN_TOKEN_KEY = "geosis_admin_token";
+const ADMIN_ROLE_KEY = "geosis_admin_role";
 
 const adminLoginButton = document.getElementById("admin-login-button");
 const adminLogoutButton = document.getElementById("admin-logout-button");
@@ -25,7 +25,7 @@ const manualLatitudeInput = document.getElementById("manual-latitude");
 const manualLongitudeInput = document.getElementById("manual-longitude");
 const manualGeocodingButton = document.getElementById("manual-geocoding-button");
 const manualGeocodingStatus = document.getElementById("manual-geocoding-status");
-const PENDING_VIEW_KEY = "asalsi_pending_view";
+const PENDING_VIEW_KEY = "geosis_pending_view";
 let openAdminAfterLogin = false;
 let viewAfterLogin = null;
 let adminCurrentPage = 1;
@@ -54,7 +54,7 @@ function setAuthSession(token, role) {
   }
 
   window.dispatchEvent(
-    new CustomEvent("asalsi:auth-changed", {
+    new CustomEvent("geosis:auth-changed", {
       detail: {
         authenticated: Boolean(token),
         role: token ? role || "user" : null,

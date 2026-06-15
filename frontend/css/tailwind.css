@@ -392,6 +392,10 @@
     @apply grid gap-4 sm:grid-cols-2 xl:grid-cols-4;
   }
 
+  .landing-three-grid {
+    @apply xl:grid-cols-3;
+  }
+
   .landing-card-grid article {
     @apply relative overflow-hidden;
   }
@@ -415,6 +419,38 @@
     @apply border-y border-slate-200 bg-white/60;
   }
 
+  .landing-split-section,
+  .analysis-section,
+  .faq-section {
+    @apply border-y border-slate-200 bg-white/60;
+  }
+
+  .faq-section {
+    @apply bg-transparent;
+  }
+
+  .analysis-grid {
+    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .analysis-grid article,
+  .module-preview-grid article,
+  .faq-grid article {
+    @apply rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-soft;
+  }
+
+  .analysis-grid article strong,
+  .module-preview-grid article strong,
+  .faq-grid article strong {
+    @apply block text-base font-semibold text-slate-900;
+  }
+
+  .analysis-grid article p,
+  .module-preview-grid article p,
+  .faq-grid article p {
+    @apply mt-2 text-sm leading-6 text-slate-600;
+  }
+
   .workflow-grid {
     @apply grid gap-4 md:grid-cols-3;
   }
@@ -429,6 +465,57 @@
 
   .workflow-grid article p {
     @apply mt-2 text-sm leading-6 text-slate-600;
+  }
+
+  .module-preview-grid {
+    @apply grid gap-4 md:grid-cols-3;
+  }
+
+  .module-preview-grid article {
+    @apply relative overflow-hidden bg-white text-slate-900;
+  }
+
+  .module-preview-grid article::after {
+    content: "";
+    @apply absolute inset-x-5 bottom-0 h-1 bg-brand-500/50;
+  }
+
+  .module-preview-grid article span {
+    @apply inline-flex rounded-full bg-brand-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-brand-800;
+  }
+
+  .module-preview-grid article strong {
+    @apply mt-3 text-slate-900;
+  }
+
+  .module-preview-grid article p {
+    @apply text-slate-600;
+  }
+
+  .faq-grid {
+    @apply mx-auto grid max-w-5xl gap-4 md:grid-cols-2;
+  }
+
+  .faq-grid article {
+    @apply relative overflow-hidden border-brand-100 bg-white pl-16 shadow-soft;
+  }
+
+  .faq-grid article::before {
+    content: "?";
+    @apply absolute left-5 top-5 grid h-8 w-8 place-items-center rounded-full bg-brand-700 text-sm font-semibold text-white shadow-sm;
+  }
+
+  .faq-grid article::after {
+    content: "";
+    @apply absolute inset-y-5 left-0 w-1 rounded-r-full bg-brand-500/70;
+  }
+
+  .faq-grid article strong {
+    @apply text-slate-950;
+  }
+
+  .faq-grid article p {
+    @apply text-slate-600;
   }
 
   .team-section {
