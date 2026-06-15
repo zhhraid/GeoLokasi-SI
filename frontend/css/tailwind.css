@@ -1283,11 +1283,11 @@
   }
 
   .location-detail-card {
-    @apply grid w-[270px] max-w-full gap-2 text-xs;
+    @apply grid w-[270px] max-w-full gap-1.5 text-xs;
   }
 
   .location-detail-heading {
-    @apply flex items-center gap-2 border-b border-slate-200 pb-2;
+    @apply flex items-center gap-2 border-b border-slate-200 pb-1.5;
   }
 
   .info-card-header {
@@ -1304,20 +1304,20 @@
   }
 
   .location-detail-heading .location-avatar {
-    @apply h-9 w-9 rounded-lg text-sm;
+    @apply h-8 w-8 rounded-lg text-sm;
   }
 
   .location-detail-heading h3 {
-    @apply mt-0 text-sm leading-5;
+    @apply mt-0 text-sm leading-4;
   }
 
   .location-detail-grid {
-    @apply grid grid-cols-2 gap-1.5;
+    @apply grid grid-cols-2 gap-1;
   }
 
   .location-detail-grid p,
   .location-detail-wide {
-    @apply grid gap-0.5 rounded-md bg-slate-50 px-2 py-1.5;
+    @apply grid gap-0 rounded-md bg-slate-50 px-2 py-1;
   }
 
   .location-detail-grid span,
@@ -1326,7 +1326,7 @@
   }
 
   .location-coordinate {
-    @apply rounded-md bg-slate-900 px-2 py-1.5 text-center font-mono text-[10px] text-slate-100;
+    @apply rounded-md bg-slate-900 px-2 py-1 text-center font-mono text-[10px] text-slate-100;
   }
 
   .info-panel {
