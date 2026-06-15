@@ -188,6 +188,46 @@ function renderAdminTable(rows) {
   adminTableStatus.textContent = `${rows.length} data terbaru ditampilkan dari database.`;
 }
 
+function setAdminEntryPanel(panelName) {
+  const activePanel = panelName === "manual" ? "manual" : "import";
+
+  document
+    .getElementById("import-entry-panel")
+    ?.classList.toggle("hidden", activePanel !== "import");
+  document
+    .getElementById("manual-entry-panel")
+    ?.classList.toggle("hidden", activePanel !== "manual");
+
+  document.querySelectorAll("[data-admin-panel]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.adminPanel === activePanel);
+  });
+}
+
+function setAdminPageMode(mode, options = {}) {
+  const isAddMode = mode === "add";
+
+  document.getElementById("admin-list-panel")?.classList.toggle("hidden", isAddMode);
+  document.getElementById("admin-add-panel")?.classList.toggle("hidden", !isAddMode);
+
+  if (isAddMode) {
+    setAdminEntryPanel(options.entryPanel || "import");
+  }
+
+  if (options.updateRoute !== false) {
+    const nextPath = isAddMode ? "/admin/input/add" : "/admin/input";
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState({ view: "admin", mode }, "", `${window.location.origin}${nextPath}${window.location.search}`);
+    }
+  }
+}
+
+function syncAdminPageModeFromPath() {
+  setAdminPageMode(
+    window.location.pathname.replace(/\/+$/, "") === "/admin/input/add" ? "add" : "list",
+    { updateRoute: false },
+  );
+}
+
 async function loadAdminRows() {
   const params = new URLSearchParams();
   const search = adminSearchInput.value.trim();
@@ -212,6 +252,7 @@ async function loadAdminPanel() {
   }
 
   window.setContentView("admin");
+  syncAdminPageModeFromPath();
   adminStatus.textContent = "Memuat";
   await loadAdminRows();
   adminStatus.textContent = "Admin aktif";
@@ -224,6 +265,24 @@ adminLoginButton.addEventListener("click", () => showLoginModal({ viewAfterLogin
 
 document.querySelectorAll(".login-trigger").forEach((button) => {
   button.addEventListener("click", () => showLoginModal({ viewAfterLogin: "dashboard" }));
+});
+
+document.querySelectorAll("[data-admin-panel]").forEach((button) => {
+  button.addEventListener("click", () => setAdminEntryPanel(button.dataset.adminPanel));
+});
+
+document.getElementById("admin-add-button")?.addEventListener("click", () => {
+  setAdminPageMode("add");
+});
+
+document.getElementById("admin-back-button")?.addEventListener("click", () => {
+  setAdminPageMode("list");
+});
+
+window.addEventListener("popstate", () => {
+  if (window.location.pathname.startsWith("/admin/input")) {
+    syncAdminPageModeFromPath();
+  }
 });
 
 document.getElementById("admin-login-form").addEventListener("submit", async (event) => {

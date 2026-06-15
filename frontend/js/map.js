@@ -416,6 +416,10 @@ function getViewFromPathname() {
     return "admin";
   }
 
+  if (path === "/admin/input/add") {
+    return "admin";
+  }
+
   const view = path.split("/").filter(Boolean).pop();
 
   return VIEW_PATHS.has(view) ? view : "landing";
@@ -423,6 +427,10 @@ function getViewFromPathname() {
 
 function syncViewRoute(view, replace = false) {
   const nextPath = VIEW_ROUTES[view] || "/";
+
+  if (view === "admin" && window.location.pathname === "/admin/input/add") {
+    return;
+  }
 
   if (window.location.pathname === nextPath) {
     if (PROTECTED_VIEWS.has(view) && window.location.hash) {

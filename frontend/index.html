@@ -228,8 +228,8 @@
             data-view="admin"
           >
             <b>03</b>
-            <span>Input Data</span>
-            <small>Import massal dan tambah data satuan</small>
+            <span>Kelola Data Mahasiswa</span>
+            <small>Pratinjau, import, dan tambah data</small>
           </button>
         </nav>
       </aside>
@@ -435,8 +435,102 @@
           </div>
         </div>
 
-        <div class="admin-grid">
-          <section class="panel admin-card">
+        <section id="admin-list-panel" class="panel admin-table-card">
+          <div class="admin-table-toolbar">
+            <div>
+              <div class="section-title">Data Mahasiswa Terbaru</div>
+              <p id="admin-table-status" class="admin-message">
+                Data hasil import excel dan input manual terbaru akan tampil di
+                sini.
+              </p>
+            </div>
+            <div class="admin-table-actions">
+              <button
+                id="admin-add-button"
+                class="primary-action nowrap-action"
+                type="button"
+              >
+                Tambah Data
+              </button>
+              <input
+                id="admin-search-input"
+                type="search"
+                placeholder="Cari nama, No BP, sekolah"
+              />
+              <button
+                id="admin-refresh-button"
+                class="secondary-action"
+                type="button"
+              >
+                Refresh
+              </button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>No BP</th>
+                  <th>Nama</th>
+                  <th>Angkatan</th>
+                  <th>JK</th>
+                  <th>Asal Sekolah</th>
+                  <th>Jalur</th>
+                  <th>Koordinat</th>
+                </tr>
+              </thead>
+              <tbody id="admin-student-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="admin-add-panel" class="panel admin-action-panel hidden">
+          <div class="admin-action-header">
+            <button
+              id="admin-back-button"
+              class="icon-back-button"
+              type="button"
+              aria-label="Kembali ke data mahasiswa"
+              title="Kembali"
+            >
+              <span aria-hidden="true">←</span>
+            </button>
+            <div class="admin-action-title">
+              <span class="eyebrow">Tambah Data</span>
+              <h3>Tambah data mahasiswa</h3>
+              <p>
+                Pilih metode input sesuai kebutuhan. Import Excel untuk banyak
+                data, atau input manual untuk satu data mahasiswa.
+              </p>
+            </div>
+          </div>
+
+          <div class="admin-entry-grid">
+            <aside class="admin-method-panel" aria-label="Metode tambah data">
+              <button
+                id="show-import-panel"
+                class="admin-method-card active"
+                type="button"
+                data-admin-panel="import"
+              >
+                <span>01</span>
+                <strong>Import Excel</strong>
+                <small>Unggah banyak data sekaligus memakai template.</small>
+              </button>
+              <button
+                id="show-manual-panel"
+                class="admin-method-card"
+                type="button"
+                data-admin-panel="manual"
+              >
+                <span>02</span>
+                <strong>Input Manual</strong>
+                <small>Tambahkan satu data mahasiswa dan geocode alamat.</small>
+              </button>
+            </aside>
+
+          <section id="import-entry-panel" class="admin-entry-panel">
             <div class="admin-card-header">
               <div>
                 <div class="section-title">Import Excel</div>
@@ -487,7 +581,7 @@
             </p>
           </section>
 
-          <section class="panel admin-card">
+          <section id="manual-entry-panel" class="admin-entry-panel hidden">
             <div class="admin-card-header">
               <div>
                 <div class="section-title">Input Manual</div>
@@ -604,48 +698,6 @@
               </div>
             </form>
           </section>
-        </div>
-
-        <section class="panel admin-table-card">
-          <div class="admin-table-toolbar">
-            <div>
-              <div class="section-title">Pratinjau Data Terbaru</div>
-              <p id="admin-table-status" class="admin-message">
-                Data hasil import excel dan input manual terbaru akan tampil di
-                sini.
-              </p>
-            </div>
-            <div class="admin-table-actions">
-              <input
-                id="admin-search-input"
-                type="search"
-                placeholder="Cari nama, No BP, sekolah"
-              />
-              <button
-                id="admin-refresh-button"
-                class="secondary-action"
-                type="button"
-              >
-                Refresh
-              </button>
-            </div>
-          </div>
-
-          <div class="table-scroll">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>No BP</th>
-                  <th>Nama</th>
-                  <th>Angkatan</th>
-                  <th>JK</th>
-                  <th>Asal Sekolah</th>
-                  <th>Jalur</th>
-                  <th>Koordinat</th>
-                </tr>
-              </thead>
-              <tbody id="admin-student-table-body"></tbody>
-            </table>
           </div>
         </section>
       </section>
