@@ -14,13 +14,13 @@ const WEBGIS_ADMIN_TOKEN_KEY = "asalsi_admin_token";
 const WEBGIS_PENDING_VIEW_KEY = "asalsi_pending_view";
 
 const jalurColors = {
-  SNBP: "#2563eb",
-  SNBT: "#16a34a",
-  MANDIRI: "#f97316",
-  PRESTASI: "#7c3aed",
-  AFIRMASI: "#db2777",
-  LAINNYA: "#64748b",
-  KHUSUS: "#0891b2",
+  SNBP:     "#3b82f6",
+  SNBT:     "#10b981",
+  MANDIRI:  "#f59e0b",
+  PRESTASI: "#8b5cf6",
+  AFIRMASI: "#f43f5e",
+  LAINNYA:  "#94a3b8",
+  KHUSUS:   "#06b6d4",
 };
 let jalurOptions = Object.keys(jalurColors);
 
@@ -148,10 +148,10 @@ async function loadHeatmap(filters) {
     blur: 20,
     maxZoom: 13,
     gradient: {
-      0.25: "#2563eb",
-      0.55: "#16a34a",
-      0.75: "#f97316",
-      1: "#7c3aed",
+      0.2:  "#3b82f6",
+      0.5:  "#10b981",
+      0.75: "#f59e0b",
+      1.0:  "#f43f5e",
     },
   }).addTo(map);
 

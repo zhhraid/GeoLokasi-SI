@@ -60,8 +60,18 @@ function renderTrend(rows) {
         {
           label: "Jumlah Mahasiswa",
           data: rows.map((row) => Number(row.total)),
-          backgroundColor: "#047857",
-          borderRadius: 6,
+          backgroundColor: (() => {
+            const max = Math.max(...rows.map((r) => Number(r.total)), 1);
+            return rows.map((row) => {
+              const ratio = Number(row.total) / max;
+              const alpha = (0.42 + ratio * 0.58).toFixed(2);
+              return `rgba(16, 185, 129, ${alpha})`;
+            });
+          })(),
+          borderColor: "#10b981",
+          borderWidth: 1,
+          borderRadius: 8,
+          borderSkipped: false,
         },
       ],
     },
@@ -97,14 +107,17 @@ function renderJalurChart(rows) {
         {
           data: rows.map((row) => Number(row.total)),
           backgroundColor: [
-            "#16a34a",
-            "#2563eb",
-            "#f97316",
-            "#7c3aed",
-            "#db2777",
-            "#64748b",
+            "#3b82f6",  // SNBP  - biru
+            "#10b981",  // SNBT  - emerald
+            "#f59e0b",  // MANDIRI - amber
+            "#8b5cf6",  // PRESTASI - violet
+            "#f43f5e",  // AFIRMASI - rose
+            "#06b6d4",  // KHUSUS - cyan
+            "#94a3b8",  // LAINNYA - slate
           ],
-          borderWidth: 0,
+          borderWidth: 2,
+          borderColor: "#ffffff",
+          hoverOffset: 6,
         },
       ],
     },
@@ -117,6 +130,7 @@ function renderJalurChart(rows) {
             boxWidth: 10,
             boxHeight: 10,
             usePointStyle: true,
+            padding: 14,
           },
         },
       },
@@ -143,8 +157,14 @@ function renderRanking(rows) {
         {
           label: "Jumlah Mahasiswa",
           data: rows.map((row) => Number(row.total)),
-          backgroundColor: "#2563eb",
+          backgroundColor: rows.map((_, i) => {
+            const alpha = Math.max(0.30, 1 - i * 0.08).toFixed(2);
+            return `rgba(59, 130, 246, ${alpha})`;
+          }),
+          borderColor: "#3b82f6",
+          borderWidth: 1,
           borderRadius: 6,
+          borderSkipped: false,
         },
       ],
     },
@@ -257,18 +277,18 @@ function buildAutomaticReport(summary, rankingRows) {
     latestDelta,
     latestTrend,
     paragraphs: [
-      `Dataset saat ini memuat ${totalMahasiswa} mahasiswa dari ${totalAngkatan} angkatan, yaitu rentang ${getAngkatanRange(trenAngkatan)}.`,
+      `Total: ${totalMahasiswa} mahasiswa, ${totalAngkatan} angkatan (${getAngkatanRange(trenAngkatan)}).`,
       topAngkatan
-        ? `Angkatan dengan jumlah mahasiswa terbanyak adalah ${topAngkatan.angkatan} sebanyak ${topAngkatan.total} mahasiswa, sedangkan jumlah paling rendah berada pada angkatan ${lowestAngkatan.angkatan} sebanyak ${lowestAngkatan.total} mahasiswa.`
+        ? `Angkatan terbanyak: ${topAngkatan.angkatan} (${topAngkatan.total}), terendah: ${lowestAngkatan?.angkatan} (${lowestAngkatan?.total}).`
         : "",
       latestYear && previousYear
-        ? `Pada angkatan terbaru (${latestYear.angkatan}), jumlah mahasiswa ${latestTrend} ${Math.abs(latestDelta)} dibanding angkatan ${previousYear.angkatan}.`
+        ? `Angkatan ${latestYear.angkatan} ${latestTrend} ${Math.abs(latestDelta)} dari ${previousYear.angkatan}.`
         : "",
       topJalur
-        ? `Jalur masuk paling dominan adalah ${topJalur.jalur_masuk} dengan ${topJalur.total} mahasiswa.`
+        ? `Jalur dominan: ${topJalur.jalur_masuk} (${topJalur.total} mahasiswa).`
         : "",
       topSchool
-        ? `Asal sekolah dengan kontribusi terbesar adalah ${topSchool.asal_sekolah} sebanyak ${topSchool.total} mahasiswa.`
+        ? `Sekolah terbesar: ${topSchool.asal_sekolah} (${topSchool.total} mahasiswa).`
         : "",
     ].filter(Boolean),
   };
@@ -284,12 +304,7 @@ function renderDashboardKpis(summary, rankingRows) {
     report.topAngkatan
       ? `${report.topAngkatan.total} mahasiswa`
       : "Data belum tersedia";
-  document.getElementById("kpi-latest-trend").textContent =
-    report.latestYear?.angkatan || "-";
-  document.getElementById("kpi-latest-trend-detail").textContent =
-    report.previousYear
-      ? `${report.latestTrend} ${Math.abs(report.latestDelta)} dari ${report.previousYear.angkatan}`
-      : "Data belum tersedia";
+
   document.getElementById("kpi-top-jalur").textContent =
     report.topJalur?.jalur_masuk || "-";
   document.getElementById("kpi-top-jalur-detail").textContent = report.topJalur
@@ -333,36 +348,27 @@ function renderDashboardInsights(summary, rankingRows) {
     averagePerCohort || "-";
   document.getElementById("insight-average-cohort-detail").textContent =
     report.totalAngkatan
-      ? `Rata-rata dari ${report.totalAngkatan} angkatan`
+      ? `dari ${report.totalAngkatan} angkatan`
       : "Data belum tersedia";
   document.getElementById("insight-top-school-share").textContent =
     formatPercent(topSchoolShare);
   document.getElementById("insight-top-school-share-detail").textContent =
     topFiveTotal
-      ? `${topFiveTotal} mahasiswa berasal dari 5 sekolah teratas`
-      : "Data ranking belum tersedia";
+      ? `${topFiveTotal} mahasiswa`
+      : "Data belum tersedia";
   document.getElementById("insight-top-jalur-share").textContent =
     formatPercent(topJalurShare);
   document.getElementById("insight-top-jalur-share-detail").textContent =
     report.topJalur
-      ? `${report.topJalur.jalur_masuk} menyumbang ${report.topJalur.total} mahasiswa`
-      : "Data jalur belum tersedia";
+      ? `${report.topJalur.jalur_masuk} dengan ${report.topJalur.total} mahasiswa`
+      : "Data belum tersedia";
   document.getElementById("insight-latest-delta").textContent = latestDeltaText;
   document.getElementById("insight-latest-delta-detail").textContent =
     report.previousYear && report.latestYear
-      ? `${report.latestTrend} dari angkatan ${report.previousYear.angkatan} ke ${report.latestYear.angkatan}`
-      : "Data tren belum tersedia";
-
-  const jalurCount = jalurMasuk.length;
-  const trendDescription =
-    report.previousYear && report.latestYear
-      ? `Angkatan terbaru ${report.latestTrend} ${Math.abs(report.latestDelta)} mahasiswa dibanding ${report.previousYear.angkatan}.`
-      : "Tren terbaru belum dapat dibandingkan.";
-  document.getElementById("insight-narrative").textContent =
-    `Dataset mencakup ${totalMahasiswa} mahasiswa dari ${report.totalAngkatan || 0} angkatan dan ${jalurCount} jalur masuk. ${trendDescription} ${formatPercent(topSchoolShare)} data terkonsentrasi pada lima sekolah teratas, sehingga sekolah-sekolah ini bisa menjadi prioritas evaluasi asal mahasiswa.`;
+      ? `${report.latestTrend} sejak ${report.previousYear.angkatan}`
+      : "Data belum tersedia";
 
   renderTopSchoolList(rankingRows, totalMahasiswa);
-  renderTrendQuality(trenAngkatan);
 }
 
 function renderTopSchoolList(rows, totalMahasiswa) {
@@ -398,26 +404,6 @@ function renderTopSchoolList(rows, totalMahasiswa) {
     .join("");
 }
 
-function renderTrendQuality(rows) {
-  const values = rows.map((row) => Number(row.total || 0)).filter(Number.isFinite);
-  const trendBox = document.getElementById("insight-narrative");
-
-  if (values.length < 3 || !trendBox) {
-    return;
-  }
-
-  const deltas = values.slice(1).map((value, index) => value - values[index]);
-  const positiveCount = deltas.filter((value) => value > 0).length;
-  const negativeCount = deltas.filter((value) => value < 0).length;
-  const pattern =
-    positiveCount > negativeCount
-      ? "Secara historis tren lebih sering meningkat."
-      : negativeCount > positiveCount
-        ? "Secara historis tren lebih sering menurun."
-        : "Secara historis tren relatif berimbang.";
-
-  trendBox.textContent = `${trendBox.textContent} ${pattern}`;
-}
 
 function buildFilteredReportData(rows) {
   const countBy = (key, fallback = "Belum tersedia") => {
@@ -824,7 +810,7 @@ function buildReportHtml(summary, rankingRows, options = {}) {
       ` : ""}
 
       <div class="footer">
-        Laporan ini dibuat otomatis dari database WebGIS dan mencerminkan data yang tersedia saat tombol export ditekan.
+        Laporan dibuat otomatis dari database WebGIS · Data per tanggal export.
       </div>
       </main>
 
@@ -884,7 +870,7 @@ async function exportDashboardReport() {
   const reportWindow = window.open("", "_blank");
 
   if (!reportWindow) {
-    alert("Pop-up laporan diblokir browser. Izinkan pop-up untuk membuat laporan PDF.");
+    alert("Pop-up diblokir browser. Izinkan pop-up untuk membuat laporan.");
     return;
   }
 
@@ -933,7 +919,7 @@ async function exportDashboardReport() {
     if (typeof window.getAdminExportData === "function") {
       const exportData = await window.getAdminExportData();
       const filteredReport = buildFilteredReportData(exportData.rows);
-      const filterDescription = `Laporan memuat ${exportData.rows.length} mahasiswa yang sesuai dengan filter aktif pada tabel admin.`;
+      const filterDescription = `${exportData.rows.length} mahasiswa sesuai filter aktif.`;
 
       reportWindow.document.open();
       reportWindow.document.write(
@@ -953,7 +939,7 @@ async function exportDashboardReport() {
     }
 
     if (!latestDashboardSummary) {
-      throw new Error("Data statistik belum tersedia untuk laporan.");
+      throw new Error("Data statistik belum tersedia.");
     }
 
     reportWindow.document.open();
