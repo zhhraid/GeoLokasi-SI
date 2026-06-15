@@ -28,6 +28,7 @@ let currentView = "marker";
 let heatLayer = null;
 let mapLoaded = false;
 let filterMetadataLoaded = false;
+let selectedMahasiswaProps = null;
 
 const map = L.map("map", {
   zoomControl: true,
@@ -72,9 +73,7 @@ function buildQueryString(filters) {
   if (filters.jalur.length === 0) {
     params.append("jalur", "__none__");
   } else if (filters.jalur.length < jalurOptions.length) {
-    filters.jalur.forEach((jalur) => {
-      params.append("jalur", jalur);
-    });
+    filters.jalur.forEach((jalur) => params.append("jalur", jalur));
   }
 
   return params.toString();
@@ -109,10 +108,11 @@ async function loadMarkers(filters) {
     },
     onEachFeature: (feature, layer) => {
       const props = normalizeFeatureProperties(feature, layer.getLatLng?.());
-      const popupContent = createPopupContent(props);
-
-      layer.bindPopup(popupContent);
-      layer.on("click", () => updateInfoPanel(normalizeFeatureProperties(feature, layer.getLatLng?.())));
+      layer.bindPopup(createPopupContent(props));
+      layer.on("click", () => {
+        selectedMahasiswaProps = props;
+        updateInfoPanel(props);
+      });
     },
   });
 
@@ -275,6 +275,10 @@ function escapeAttribute(value) {
 function normalizeFeatureProperties(feature, latlng) {
   const props = { ...(feature.properties || {}) };
 
+  if (feature.id && !props.id) {
+    props.id = feature.id;
+  }
+
   if (latlng) {
     props.latitude = Number(latlng.lat);
     props.longitude = Number(latlng.lng);
@@ -296,7 +300,6 @@ function normalizeFeatureProperties(feature, latlng) {
 }
 
 function createPopupContent(props) {
-  console.log("DEBUG createPopupContent props:", props);
   const nama = props.nama_lengkap || props.nama || "-";
   const noBp = props.no_bp || "-";
   const asalSekolah = props.asal_sekolah || "-";
@@ -305,23 +308,29 @@ function createPopupContent(props) {
   const jenisKelamin = formatJenisKelamin(props.jenis_kelamin);
   const jalur = props.jalur_masuk || props.jalur || "Belum tersedia";
   const koordinat = `${formatSingleCoordinate(props.latitude)}, ${formatSingleCoordinate(props.longitude)}`;
+  const isAdmin = sessionStorage.getItem("asalsi_admin_role") === "admin";
 
   return `
-    <div class="marker-popup">
-      <h3>${escapeHtml(nama)}</h3>
-      <p><strong>No BP:</strong> ${escapeHtml(noBp)}</p>
-      <p><strong>Asal Sekolah:</strong> ${escapeHtml(asalSekolah)}</p>
-      <p><strong>Alamat:</strong> ${escapeHtml(alamat)}</p>
-      <p><strong>Angkatan:</strong> ${escapeHtml(angkatan)}</p>
-      <p><strong>Jenis Kelamin:</strong> ${escapeHtml(jenisKelamin)}</p>
-      <p><strong>Jalur Masuk:</strong> ${escapeHtml(jalur)}</p>
-      <p><strong>Koordinat:</strong> ${escapeHtml(koordinat)}</p>
+    <div class="marker-popup location-detail-card">
+      <div class="location-detail-heading">
+        <span class="location-avatar">${escapeHtml(String(nama).charAt(0).toUpperCase())}</span>
+        <div><small>Detail Lokasi</small><h3>${escapeHtml(nama)}</h3></div>
+      </div>
+      <div class="location-detail-grid">
+        <p><span>No BP</span><strong>${escapeHtml(noBp)}</strong></p>
+        <p><span>Angkatan</span><strong>${escapeHtml(angkatan)}</strong></p>
+        <p><span>Jenis Kelamin</span><strong>${escapeHtml(jenisKelamin)}</strong></p>
+        <p><span>Jalur Masuk</span><strong>${escapeHtml(jalur)}</strong></p>
+      </div>
+      <p class="location-detail-wide"><span>Asal Sekolah</span><strong>${escapeHtml(asalSekolah)}</strong></p>
+      <p class="location-detail-wide"><span>Alamat</span><strong>${escapeHtml(alamat)}</strong></p>
+      <p class="location-coordinate">${escapeHtml(koordinat)}</p>
+      ${isAdmin ? `<a class="marker-popup-edit-button" href="/admin/input?id=${encodeURIComponent(props.id)}">Edit Data Mahasiswa</a>` : ""}
     </div>
   `;
 }
 
 function updateInfoPanel(props) {
-  console.log("DEBUG updateInfoPanel props:", props);
   const latitude = Number(props.latitude);
   const longitude = Number(props.longitude);
   const coordinateText =
@@ -329,11 +338,14 @@ function updateInfoPanel(props) {
       ? `${formatSingleCoordinate(latitude)}, ${formatSingleCoordinate(longitude)}`
       : "Koordinat tidak tersedia";
 
+  const nama = props.nama_lengkap || props.nama || "-";
+  const isAdmin = sessionStorage.getItem("asalsi_admin_role") === "admin";
   document.getElementById("info-panel").innerHTML = `
-    <h2>Info Mahasiswa</h2>
-    <dl>
-      <dt>Nama</dt>
-      <dd>${escapeHtml(props.nama_lengkap || props.nama || "-")}</dd>
+    <div class="info-card-header">
+      <span class="location-avatar">${escapeHtml(String(nama).charAt(0).toUpperCase())}</span>
+      <div><small>Detail Lokasi Mahasiswa</small><h2>${escapeHtml(nama)}</h2></div>
+    </div>
+    <dl class="info-detail-list">
       <dt>No BP</dt>
       <dd>${escapeHtml(props.no_bp || "-")}</dd>
       <dt>Asal Sekolah</dt>
@@ -349,6 +361,7 @@ function updateInfoPanel(props) {
       <dt>Koordinat</dt>
       <dd>${coordinateText}</dd>
     </dl>
+    ${isAdmin ? `<a class="info-edit-button" href="/admin/input?id=${encodeURIComponent(props.id)}">Edit Data Mahasiswa</a>` : ""}
   `;
 }
 
@@ -458,6 +471,22 @@ function reloadActiveLayer() {
     loadHeatmap();
   }
 }
+
+window.reloadMapData = reloadActiveLayer;
+
+function syncMapAuthState() {
+  if (selectedMahasiswaProps) {
+    updateInfoPanel(selectedMahasiswaProps);
+  }
+
+  if (mapLoaded && currentView === "marker") {
+    loadMarkers().catch(() => {
+      // Tampilan lama tetap dipertahankan bila data marker gagal dimuat ulang.
+    });
+  }
+}
+
+window.addEventListener("asalsi:auth-changed", syncMapAuthState);
 
 function isAuthenticated() {
   return Boolean(sessionStorage.getItem(WEBGIS_ADMIN_TOKEN_KEY));

@@ -31,6 +31,7 @@ let viewAfterLogin = null;
 let adminCurrentPage = 1;
 let adminTotalPages = 1;
 let adminFilterOptionsLoaded = false;
+let adminRowsById = new Map();
 
 localStorage.removeItem(ADMIN_TOKEN_KEY);
 localStorage.removeItem(ADMIN_ROLE_KEY);
@@ -51,6 +52,15 @@ function setAuthSession(token, role) {
     sessionStorage.removeItem(ADMIN_TOKEN_KEY);
     sessionStorage.removeItem(ADMIN_ROLE_KEY);
   }
+
+  window.dispatchEvent(
+    new CustomEvent("asalsi:auth-changed", {
+      detail: {
+        authenticated: Boolean(token),
+        role: token ? role || "user" : null,
+      },
+    }),
+  );
 }
 
 function escapeHtml(value) {
@@ -92,6 +102,10 @@ function updateAuthButtons() {
 
   if (isLoggedIn) {
     hideLoginModal();
+  }
+
+  if (!isAdmin && !document.getElementById("edit-student-modal").classList.contains("hidden")) {
+    closeEditStudentModal();
   }
 }
 
@@ -193,13 +207,14 @@ async function loadAdminFilterOptions() {
 
 function renderAdminTable(rows, pagination) {
   const tbody = document.getElementById("admin-student-table-body");
+  adminRowsById = new Map(rows.map((row) => [String(row.id), row]));
   adminCurrentPage = pagination.page;
   adminTotalPages = pagination.totalPages;
 
   if (rows.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8">Belum ada data yang cocok. Import CSV atau isi form manual terlebih dahulu.</td>
+        <td colspan="9">Belum ada data yang cocok. Import CSV atau isi form manual terlebih dahulu.</td>
       </tr>
     `;
     adminTableStatus.textContent = "Belum ada data untuk ditampilkan.";
@@ -218,6 +233,16 @@ function renderAdminTable(rows, pagination) {
         <td>${escapeHtml(row.alamat || "-")}</td>
         <td><span class="jalur-badge">${escapeHtml(row.jalur_masuk || "-")}</span></td>
         <td>${escapeHtml(formatCoordinate(row.latitude, row.longitude))}</td>
+        <td>
+          <div class="table-row-actions">
+            <button class="table-action-button edit" type="button" data-action="edit" data-id="${row.id}" aria-label="Edit ${escapeHtml(row.nama_lengkap)}" title="Edit">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>
+            </button>
+            <button class="table-action-button delete" type="button" data-action="delete" data-id="${row.id}" aria-label="Hapus ${escapeHtml(row.nama_lengkap)}" title="Hapus">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></svg>
+            </button>
+          </div>
+        </td>
       </tr>
     `)
     .join("");
@@ -229,6 +254,57 @@ function renderAdminTable(rows, pagination) {
   adminPreviousPageButton.disabled = pagination.page <= 1;
   adminNextPageButton.disabled = pagination.page >= pagination.totalPages;
   adminTablePagination.classList.remove("hidden");
+}
+
+function closeEditStudentModal() {
+  document.getElementById("edit-student-modal").classList.add("hidden");
+  document.body.classList.remove("modal-open");
+
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("id")) {
+    url.searchParams.delete("id");
+    window.history.replaceState({ view: "admin" }, "", `${url.pathname}${url.search}`);
+  }
+}
+
+function openEditStudentModal(row) {
+  if (!row || getUserRole() !== "admin") return;
+
+  const fields = {
+    "edit-student-id": row.id,
+    "edit-no-bp": row.no_bp,
+    "edit-angkatan": row.angkatan,
+    "edit-nama": row.nama_lengkap,
+    "edit-jk": row.jenis_kelamin,
+    "edit-jalur": row.jalur_masuk,
+    "edit-sekolah": row.asal_sekolah,
+    "edit-alamat": row.alamat,
+    "edit-latitude": row.latitude,
+    "edit-longitude": row.longitude,
+  };
+
+  Object.entries(fields).forEach(([id, value]) => {
+    document.getElementById(id).value = value ?? "";
+  });
+  document.getElementById("edit-student-status").textContent =
+    "Perbarui data lalu tekan Simpan Perubahan.";
+  document.getElementById("edit-student-modal").classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+window.openStudentEditor = openEditStudentModal;
+
+async function openStudentEditorFromUrl() {
+  const id = new URLSearchParams(window.location.search).get("id");
+
+  if (!id) return;
+
+  try {
+    const row = await adminRequest(`/admin/mahasiswa/${encodeURIComponent(id)}`);
+    openEditStudentModal(row);
+  } catch (error) {
+    adminTableStatus.textContent = error.message;
+  }
 }
 
 function setAdminEntryPanel(panelName) {
@@ -341,6 +417,7 @@ async function loadAdminPanel() {
   adminStatus.textContent = "Memuat";
   await loadAdminFilterOptions();
   await loadAdminRows();
+  await openStudentEditorFromUrl();
   adminStatus.textContent = "Admin aktif";
 }
 
@@ -556,8 +633,74 @@ adminNextPageButton.addEventListener("click", () => {
     loadAdminRows(adminCurrentPage + 1);
   }
 });
+
+document.getElementById("admin-student-table-body").addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-action]");
+  if (!button) return;
+
+  const row = adminRowsById.get(button.dataset.id);
+  if (button.dataset.action === "edit") {
+    openEditStudentModal(row);
+    return;
+  }
+
+  if (!row || !window.confirm(`Hapus data ${row.nama_lengkap} (${row.no_bp})?`)) return;
+
+  button.disabled = true;
+  try {
+    await adminRequest(`/admin/mahasiswa/${row.id}`, { method: "DELETE" });
+    await loadAdminRows(adminCurrentPage);
+    if (typeof window.reloadMapData === "function") {
+      window.reloadMapData();
+    }
+  } catch (error) {
+    alert(error.message);
+    button.disabled = false;
+  }
+});
+
+document.getElementById("edit-student-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const payload = Object.fromEntries(new FormData(form).entries());
+  const id = payload.id;
+  delete payload.id;
+  const status = document.getElementById("edit-student-status");
+  status.textContent = "Menyimpan perubahan...";
+
+  try {
+    const result = await adminRequest(`/admin/mahasiswa/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    status.textContent = result.message;
+    await loadAdminRows(adminCurrentPage);
+    if (typeof window.reloadMapData === "function") {
+      window.reloadMapData();
+    }
+    setTimeout(closeEditStudentModal, 450);
+  } catch (error) {
+    status.textContent = error.message;
+  }
+});
+
+document.getElementById("edit-student-close").addEventListener("click", closeEditStudentModal);
+document.getElementById("edit-student-cancel").addEventListener("click", closeEditStudentModal);
+document.getElementById("edit-student-modal").addEventListener("click", (event) => {
+  if (event.target === event.currentTarget) closeEditStudentModal();
+});
 updateAuthButtons();
 
 if (window.location.pathname.replace(/\/+$/, "") === "/login" && !getAdminToken()) {
   showLoginModal({ viewAfterLogin: sessionStorage.getItem(PENDING_VIEW_KEY) || "dashboard" });
+}
+
+if (
+  window.location.pathname.startsWith("/admin/input") &&
+  getAdminToken() &&
+  getUserRole() === "admin"
+) {
+  loadAdminPanel().catch((error) => {
+    adminStatus.textContent = error.message;
+  });
 }

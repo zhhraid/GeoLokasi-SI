@@ -16,12 +16,12 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
     />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     <header class="landing-header">
       <a class="landing-brand" href="#home" aria-label="GeoSIS Unand - Beranda">
-        <img src="images/logo-transparent.png" alt="GeoSIS Unand" />
+        <img src="/images/logo-transparent.png" alt="GeoSIS Unand" />
       </a>
       <nav class="landing-nav" aria-label="Navigasi landing page">
         <a class="landing-nav-link" href="#home">Beranda</a>
@@ -34,7 +34,7 @@
 
     <header class="app-header hidden">
       <a class="app-brand-logo" href="/" aria-label="GeoSIS Unand">
-        <img src="images/logo-transparent.png" alt="GeoSIS Unand" />
+        <img src="/images/logo-transparent.png" alt="GeoSIS Unand" />
       </a>
       <div class="topbar-actions">
         <span class="topbar-chip">Universitas Andalas</span>
@@ -248,27 +248,27 @@
           </div>
           <div class="team-grid">
             <article class="team-card">
-              <img src="images/nayla.jpeg" alt="Foto Nayla Thahira Meldian" />
+              <img src="/images/nayla.jpeg" alt="Foto Nayla Thahira Meldian" />
               <strong>Nayla Thahira Meldian</strong>
               <small>2311521006 - Backend Developer</small>
             </article>
             <article class="team-card">
-              <img src="images/keziaa.jpeg" alt="Foto Kezia Valerina Damanik" />
+              <img src="/images/keziaa.jpeg" alt="Foto Kezia Valerina Damanik" />
               <strong>Kezia Valerina Damanik</strong>
               <small>2311522010 - Frontend Developer</small>
             </article>
             <article class="team-card">
-              <img src="images/vira.jpeg" alt="Foto Mashia Zavira Septyana" />
+              <img src="/images/vira.jpeg" alt="Foto Mashia Zavira Septyana" />
               <strong>Mashia Zavira Septyana</strong>
               <small>2311522028 - GIS & Geocoding Engineer</small>
             </article>
             <article class="team-card">
-              <img src="images/zhahra.jpeg" alt="Foto Zhahra Idhya Astwoti" />
+              <img src="/images/zhahra.jpeg" alt="Foto Zhahra Idhya Astwoti" />
               <strong>Zhahra Idhya Astwoti</strong>
               <small>2311523006 - Frontend Developer</small>
             </article>
             <article class="team-card">
-              <img src="images/della.jpeg" alt="Foto Della Khairunnisa" />
+              <img src="/images/della.jpeg" alt="Foto Della Khairunnisa" />
               <strong>Della Khairunnisa</strong>
               <small>2311523032 - Backend Developer</small>
             </article>
@@ -278,11 +278,6 @@
 
       <div id="app-workspace" class="webgis-layout hidden">
         <aside class="app-sidebar">
-          <section class="panel hero-panel">
-            <span class="eyebrow">Sistem Informasi Unand</span>
-            <h1>Analisis Persebaran Asal Mahasiswa</h1>
-          </section>
-
           <nav class="module-nav" aria-label="Menu utama WebGIS">
             <button
               id="dashboard-menu"
@@ -290,9 +285,10 @@
               type="button"
               data-view="dashboard"
             >
-              <b>01</b>
-              <span>Dashboard</span>
-              <small>Visualisasi analitik multidimensi</small>
+              <div class="module-icon">
+                <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"></path></svg>
+              </div>
+              <span class="module-label">Dashboard</span>
             </button>
             <button
               id="map-menu"
@@ -300,9 +296,10 @@
               type="button"
               data-view="map"
             >
-              <b>02</b>
-              <span>Peta Persebaran</span>
-              <small>Marker, heatmap, filter, dan info titik</small>
+              <div class="module-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              </div>
+              <span class="module-label">Peta Persebaran</span>
             </button>
             <button
               id="admin-menu"
@@ -310,9 +307,10 @@
               type="button"
               data-view="admin"
             >
-              <b>03</b>
-              <span>Kelola Data Mahasiswa</span>
-              <small>Pratinjau, import, dan tambah data</small>
+              <div class="module-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+              </div>
+              <span class="module-label">Kelola Data Mahasiswa</span>
             </button>
           </nav>
         </aside>
@@ -584,6 +582,7 @@
                     <th>Alamat</th>
                     <th>Jalur</th>
                     <th>Koordinat</th>
+                    <th>Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="admin-student-table-body"></tbody>
@@ -860,6 +859,77 @@
     </main>
 
     <div
+      id="edit-student-modal"
+      class="edit-student-modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-student-title"
+    >
+      <div class="edit-student-dialog">
+        <div class="edit-student-header">
+          <div>
+            <span class="eyebrow">Kelola Mahasiswa</span>
+            <h2 id="edit-student-title">Edit data mahasiswa</h2>
+          </div>
+          <button
+            id="edit-student-close"
+            class="modal-close-button"
+            type="button"
+            aria-label="Tutup form edit"
+          >
+            &times;
+          </button>
+        </div>
+        <form id="edit-student-form" class="admin-form manual-form">
+          <input id="edit-student-id" name="id" type="hidden" />
+          <div class="form-row">
+            <label for="edit-no-bp">No BP / NIM
+              <input id="edit-no-bp" name="no_bp" required />
+            </label>
+            <label for="edit-angkatan">Angkatan
+              <input id="edit-angkatan" name="angkatan" type="number" min="2000" max="2100" required />
+            </label>
+          </div>
+          <label for="edit-nama">Nama Lengkap
+            <input id="edit-nama" name="nama_lengkap" required />
+          </label>
+          <div class="form-row">
+            <label for="edit-jk">Jenis Kelamin
+              <select id="edit-jk" name="jenis_kelamin" required>
+                <option value="L">Laki-laki</option>
+                <option value="P">Perempuan</option>
+              </select>
+            </label>
+            <label for="edit-jalur">Jalur Masuk
+              <input id="edit-jalur" name="jalur_masuk" />
+            </label>
+          </div>
+          <label for="edit-sekolah">Asal Sekolah
+            <input id="edit-sekolah" name="asal_sekolah" required />
+          </label>
+          <label for="edit-alamat">Alamat
+            <input id="edit-alamat" name="alamat" required />
+          </label>
+          <div class="form-row coordinate-section">
+            <label for="edit-latitude">Latitude
+              <input id="edit-latitude" name="latitude" required />
+            </label>
+            <label for="edit-longitude">Longitude
+              <input id="edit-longitude" name="longitude" required />
+            </label>
+          </div>
+          <p id="edit-student-status" class="admin-message">
+            Perbarui data lalu tekan Simpan Perubahan.
+          </p>
+          <div class="admin-form-actions">
+            <button id="edit-student-cancel" class="secondary-action" type="button">Batal</button>
+            <button class="primary-action" type="submit">Simpan Perubahan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
       id="login-modal"
       class="login-modal hidden"
       role="dialog"
@@ -868,7 +938,7 @@
     >
       <div class="login-dialog">
         <div class="login-brand">
-          <img src="images/logo-transparent.png" alt="GeoSIS Unand" />
+          <img src="/images/logo-transparent.png" alt="GeoSIS Unand" />
         </div>
         <form id="admin-login-form" class="admin-form">
           <label class="login-field" for="admin-username">
@@ -906,8 +976,8 @@
     <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/map.js"></script>
-    <script src="js/dashboard.js"></script>
-    <script src="js/admin.js"></script>
+    <script src="/js/map.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/admin.js"></script>
   </body>
 </html>
