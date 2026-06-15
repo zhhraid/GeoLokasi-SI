@@ -20,15 +20,11 @@
   </head>
   <body>
     <header class="landing-header">
-      <div class="brand">
-        <div class="brand-mark">AS</div>
-        <div class="brand-logo">AsalSI WebGIS</div>
-        <div class="brand-subtitle">
-          WebGIS persebaran daerah asal mahasiswa Sistem Informasi Unand
-        </div>
-      </div>
+      <a class="landing-brand" href="#home" aria-label="GeoSIS Unand - Beranda">
+        <img src="images/logo-transparent.png" alt="GeoSIS Unand" />
+      </a>
       <nav class="landing-nav" aria-label="Navigasi landing page">
-        <a class="landing-nav-link" href="#home">Home</a>
+        <a class="landing-nav-link" href="#home">Beranda</a>
         <a class="landing-nav-link" href="#fitur">Fitur</a>
         <a class="landing-nav-link" href="#alur">Alur</a>
         <a class="landing-nav-link" href="#tentang">Tentang</a>
@@ -37,14 +33,9 @@
     </header>
 
     <header class="app-header hidden">
-      <div class="brand">
-        <div class="brand-mark">AS</div>
-        <div class="brand-logo">AsalSI WebGIS</div>
-        <div class="brand-subtitle">
-          Pembangunan WebGIS untuk Pemetaan Persebaran Daerah Asal Mahasiswa
-          Program Studi Sistem Informasi Universitas Andalas
-        </div>
-      </div>
+      <a class="app-brand-logo" href="/" aria-label="GeoSIS Unand">
+        <img src="images/logo-transparent.png" alt="GeoSIS Unand" />
+      </a>
       <div class="topbar-actions">
         <span class="topbar-chip">Universitas Andalas</span>
         <span class="topbar-chip" id="data-range-chip">Data 2010-2025</span>
@@ -68,14 +59,110 @@
         aria-label="Landing page AsalSI WebGIS"
       >
         <section id="home" class="landing-hero">
-          <div class="landing-hero-copy">
-            <span class="eyebrow">AsalSI WebGIS</span>
-            <h1>Pemetaan asal mahasiswa Sistem Informasi Universitas Andalas</h1>
-            <p>
-              Platform analisis spasial akademik untuk membaca persebaran asal
-              sekolah, jalur masuk, angkatan, dan pola geografis mahasiswa
-              secara ringkas, visual, dan mudah ditindaklanjuti.
-            </p>
+          <div class="landing-hero-content">
+            <div class="landing-hero-copy">
+              <span class="hero-badge">
+                <i aria-hidden="true"></i>
+                Geospatial Information System Student
+              </span>
+              <h1>
+                Memahami persebaran mahasiswa Sistem Informasi melalui
+                <span>data spasial.</span>
+              </h1>
+              <p>
+                GeoSIS mengubah data asal mahasiswa menjadi insight visual yang
+                membantu analisis, pemetaan, dan pengambilan keputusan akademik.
+              </p>
+              <div class="hero-actions">
+                <button class="hero-primary-action login-trigger" type="button">
+                  Buka Dashboard
+                  <span aria-hidden="true">→</span>
+                </button>
+              </div>
+              <div class="hero-feature-list" aria-label="Fitur unggulan">
+                <span>Peta Interaktif</span>
+                <span>Analitik Data</span>
+                <span>Geocoding Otomatis</span>
+              </div>
+            </div>
+
+            <aside class="hero-insight-card" aria-label="Ringkasan GeoSIS">
+              <div class="hero-insight-header">
+                <div>
+                  <small>Platform</small>
+                  <strong>GeoSIS Analytics</strong>
+                </div>
+                <span>Live</span>
+              </div>
+              <div class="hero-insight-map">
+                <div class="hero-map-grid"></div>
+                <svg
+                  class="hero-map-shape"
+                  viewBox="0 0 620 250"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M34 72c34-26 82-23 109-7 15 9 20 25 4 34-24 14-60 7-84 0-19-6-45-13-29-27Z"
+                  ></path>
+                  <path
+                    d="M156 116c18-9 46-8 62 1 11 7 8 18-4 25-19 11-51 14-72 7-15-5-9-22 14-33Z"
+                  ></path>
+                  <path
+                    d="M237 70c19-17 48-26 65-14 13 9 5 25-6 38-13 15-10 34-21 45-16 16-38-1-44-18-7-20-10-37 6-51Z"
+                  ></path>
+                  <path
+                    d="M315 107c22-17 37-10 50 0 11 9 20 3 34-2 18-7 30 10 20 23-9 12-24 15-39 13-16-2-22 12-37 12-17 0-24-12-29-25-3-8-7-14 1-21Z"
+                  ></path>
+                  <path
+                    d="M433 104c22-8 48-4 69 4 16 6 31 4 48 2 19-2 33 7 22 19-17 18-48 12-70 10-27-2-47 10-69 4-17-4-18-32 0-39Z"
+                  ></path>
+                  <path
+                    d="M279 182c30-7 71-7 102-3 18 3 16 15-3 18-34 5-76 4-105-1-17-3-13-10 6-14Z"
+                  ></path>
+                  <path
+                    d="M402 166c9-5 22-4 28 2 6 7-3 14-13 14-13 0-25-8-15-16Zm39 13c7-5 19-3 24 3 4 6-4 12-13 11-10-1-19-8-11-14Zm37 7c7-4 17-1 20 5 2 5-5 9-12 8-8-1-15-9-8-13Z"
+                  ></path>
+                </svg>
+                <span class="hero-map-point point-one">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M12 22s7-6.2 7-13a7 7 0 1 0-14 0c0 6.8 7 13 7 13Z"
+                    ></path>
+                    <circle cx="12" cy="9" r="2.5"></circle>
+                  </svg>
+                </span>
+                <span class="hero-map-point point-two">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M12 22s7-6.2 7-13a7 7 0 1 0-14 0c0 6.8 7 13 7 13Z"
+                    ></path>
+                    <circle cx="12" cy="9" r="2.5"></circle>
+                  </svg>
+                </span>
+                <span class="hero-map-point point-three">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M12 22s7-6.2 7-13a7 7 0 1 0-14 0c0 6.8 7 13 7 13Z"
+                    ></path>
+                    <circle cx="12" cy="9" r="2.5"></circle>
+                  </svg>
+                </span>
+                <div class="hero-map-label">
+                  <small>Cakupan data</small>
+                  <strong>Mahasiswa SI UNAND</strong>
+                </div>
+              </div>
+              <div class="hero-insight-stats">
+                <div>
+                  <small>Rentang Data</small>
+                  <strong>2010-2025</strong>
+                </div>
+                <div>
+                  <small>Visualisasi</small>
+                  <strong>Marker & Heatmap</strong>
+                </div>
+              </div>
+            </aside>
           </div>
         </section>
 
@@ -109,8 +196,8 @@
               <span class="landing-icon">03</span>
               <strong>Filter Data</strong>
               <p>
-                Filter angkatan, jalur penerimaan, dan pencarian sekolah
-                membuat eksplorasi data lebih terarah.
+                Filter angkatan, jalur penerimaan, dan pencarian sekolah membuat
+                eksplorasi data lebih terarah.
               </p>
             </article>
             <article>
@@ -143,7 +230,9 @@
             <article>
               <span>Analisis</span>
               <strong>Baca persebaran</strong>
-              <p>Dashboard dan peta menyajikan pola angkatan, jalur, dan lokasi.</p>
+              <p>
+                Dashboard dan peta menyajikan pola angkatan, jalur, dan lokasi.
+              </p>
             </article>
           </div>
         </section>
@@ -153,554 +242,627 @@
             <span class="eyebrow">Tentang</span>
             <h2>Tim pengembang AsalSI WebGIS</h2>
             <p>
-              Dikembangkan sebagai sistem akademik oleh enam anggota tim dengan
-              pembagian peran pada antarmuka, API, database, GIS, analitik, dan
-              pengujian.
+              Dikembangkan sebagai sistem akademik oleh lima anggota tim dengan
+              pembagian peran pada frontend, backend, GIS, dan geocoding.
             </p>
           </div>
           <div class="team-grid">
             <article class="team-card">
+              <img src="images/nayla.jpeg" alt="Foto Nayla Thahira Meldian" />
+              <strong>Nayla Thahira Meldian</strong>
+              <small>2311521006 - Backend Developer</small>
+            </article>
+            <article class="team-card">
               <img src="images/keziaa.jpeg" alt="Foto Kezia Valerina Damanik" />
               <strong>Kezia Valerina Damanik</strong>
-              <small>2311522010 - Frontend & UI</small>
+              <small>2311522010 - Frontend Developer</small>
             </article>
             <article class="team-card">
-              <span>API</span>
-              <strong>Anggota Tim</strong>
-              <small>Backend API</small>
+              <img src="images/vira.jpeg" alt="Foto Mashia Zavira Septyana" />
+              <strong>Mashia Zavira Septyana</strong>
+              <small>2311522028 - GIS & Geocoding Engineer</small>
             </article>
             <article class="team-card">
-              <span>DB</span>
-              <strong>Anggota Tim</strong>
-              <small>Database</small>
+              <img src="images/zhahra.jpeg" alt="Foto Zhahra Idhya Astwoti" />
+              <strong>Zhahra Idhya Astwoti</strong>
+              <small>2311523006 - Frontend Developer</small>
             </article>
             <article class="team-card">
-              <span>GIS</span>
-              <strong>Anggota Tim</strong>
-              <small>GIS & Geocoding</small>
-            </article>
-            <article class="team-card">
-              <span>AN</span>
-              <strong>Anggota Tim</strong>
-              <small>Analitik Data</small>
-            </article>
-            <article class="team-card">
-              <span>QA</span>
-              <strong>Anggota Tim</strong>
-              <small>Dokumentasi & QA</small>
+              <img src="images/della.jpeg" alt="Foto Della Khairunnisa" />
+              <strong>Della Khairunnisa</strong>
+              <small>2311523032 - Backend Developer</small>
             </article>
           </div>
         </section>
       </section>
 
       <div id="app-workspace" class="webgis-layout hidden">
-      <aside class="app-sidebar">
-        <section class="panel hero-panel">
-          <span class="eyebrow">Sistem Informasi Unand</span>
-          <h1>Analisis Persebaran Asal Mahasiswa</h1>
-        </section>
-
-        <nav class="module-nav" aria-label="Menu utama WebGIS">
-          <button
-            id="dashboard-menu"
-            class="module-button active"
-            type="button"
-            data-view="dashboard"
-          >
-            <b>01</b>
-            <span>Dashboard</span>
-            <small>Visualisasi analitik multidimensi</small>
-          </button>
-          <button
-            id="map-menu"
-            class="module-button"
-            type="button"
-            data-view="map"
-          >
-            <b>02</b>
-            <span>Peta Persebaran</span>
-            <small>Marker, heatmap, filter, dan info titik</small>
-          </button>
-          <button
-            id="admin-menu"
-            class="module-button"
-            type="button"
-            data-view="admin"
-          >
-            <b>03</b>
-            <span>Kelola Data Mahasiswa</span>
-            <small>Pratinjau, import, dan tambah data</small>
-          </button>
-        </nav>
-      </aside>
-
-      <section
-        id="dashboard-view"
-        class="content-view dashboard-view active"
-        aria-label="Dashboard analitik"
-      >
-        <div class="content-header">
-          <div>
-            <span class="eyebrow">Dashboard Analitik</span>
-            <h2>Visualisasi Multidimensi Mahasiswa</h2>
-            <p>
-              Ringkasan data, tren angkatan, dan ranking asal sekolah
-              berdasarkan data mahasiswa Program Studi Sistem Informasi
-              Universitas Andalas.
-            </p>
-          </div>
-          <span id="data-status" class="status-pill">Memuat</span>
-        </div>
-
-        <div class="metric-grid dashboard-metrics">
-          <article class="metric-card">
-            <span>Total Mahasiswa</span>
-            <strong id="total-mahasiswa">0</strong>
-            <small>Data asal sekolah terpetakan</small>
-          </article>
-          <article class="metric-card">
-            <span>Angkatan Aktif</span>
-            <strong id="total-angkatan">0</strong>
-            <small>Rentang data mahasiswa</small>
-          </article>
-          <article class="metric-card">
-            <span>Angkatan Terbanyak</span>
-            <strong id="kpi-top-angkatan">-</strong>
-            <small id="kpi-top-angkatan-detail">Data belum tersedia</small>
-          </article>
-          <article class="metric-card">
-            <span>Tren Terbaru</span>
-            <strong id="kpi-latest-trend">-</strong>
-            <small id="kpi-latest-trend-detail">Data belum tersedia</small>
-          </article>
-          <article class="metric-card">
-            <span>Jalur Dominan</span>
-            <strong id="kpi-top-jalur">-</strong>
-            <small id="kpi-top-jalur-detail">Data belum tersedia</small>
-          </article>
-          <article class="metric-card">
-            <span>Sekolah Dominan</span>
-            <strong id="kpi-top-school">-</strong>
-            <small id="kpi-top-school-detail">Data belum tersedia</small>
-          </article>
-        </div>
-
-        <section class="panel insight-panel">
-          <div class="section-title">Insight Otomatis</div>
-          <div class="insight-grid">
-            <article>
-              <span>Rata-rata per Angkatan</span>
-              <strong id="insight-average-cohort">-</strong>
-              <small id="insight-average-cohort-detail">Menunggu data</small>
-            </article>
-            <article>
-              <span>Konsentrasi Top 5 Sekolah</span>
-              <strong id="insight-top-school-share">-</strong>
-              <small id="insight-top-school-share-detail">Menunggu data</small>
-            </article>
-            <article>
-              <span>Porsi Jalur Dominan</span>
-              <strong id="insight-top-jalur-share">-</strong>
-              <small id="insight-top-jalur-share-detail">Menunggu data</small>
-            </article>
-            <article>
-              <span>Perubahan Angkatan Terbaru</span>
-              <strong id="insight-latest-delta">-</strong>
-              <small id="insight-latest-delta-detail">Menunggu data</small>
-            </article>
-          </div>
-          <div class="insight-summary">
-            <p id="insight-narrative">
-              Insight akan muncul otomatis setelah statistik berhasil dimuat.
-            </p>
-          </div>
-        </section>
-
-        <div class="dashboard-grid">
-          <section class="panel dashboard-card">
-            <div class="section-title">Tren Per Angkatan</div>
-            <div class="chart-box">
-              <canvas id="trend-chart"></canvas>
-            </div>
+        <aside class="app-sidebar">
+          <section class="panel hero-panel">
+            <span class="eyebrow">Sistem Informasi Unand</span>
+            <h1>Analisis Persebaran Asal Mahasiswa</h1>
           </section>
 
-          <section class="panel dashboard-card">
-            <div class="section-title">Ranking Asal Sekolah</div>
-            <div class="chart-box">
-              <canvas id="ranking-chart"></canvas>
-            </div>
-          </section>
-        </div>
-
-        <div class="dashboard-grid secondary-dashboard-grid">
-          <section class="panel dashboard-card compact-dashboard-card">
-            <div class="section-title">Distribusi Jalur Masuk</div>
-            <div class="chart-box chart-box-small">
-              <canvas id="jalur-chart"></canvas>
-            </div>
-          </section>
-        </div>
-
-        <section class="panel dashboard-card school-focus-card">
-          <div class="section-title">Sekolah Penyumbang Teratas</div>
-          <div id="top-school-list" class="top-school-list">
-            <p class="admin-message">Menunggu data ranking asal sekolah.</p>
-          </div>
-        </section>
-
-      </section>
-
-      <section
-        id="map-view"
-        class="content-view map-view"
-        aria-label="Peta persebaran asal mahasiswa"
-      >
-        <aside class="map-control-panel">
-          <section class="filter-section">
-            <h2>Filter Data</h2>
-
-            <label for="search-input">Pencarian</label>
-            <input
-              id="search-input"
-              type="search"
-              placeholder="Nama, No BP, asal sekolah, jalur"
-            />
-
-            <label for="angkatan">Angkatan</label>
-            <select id="angkatan" name="angkatan">
-              <option value="">Semua Angkatan</option>
-            </select>
-
-            <fieldset class="jalur-filter">
-              <legend>Jalur Penerimaan</legend>
-              <div id="jalur-filter-options"></div>
-            </fieldset>
-
-            <p id="filter-result-count" class="filter-result-count">
-              Menunggu data peta.
-            </p>
-          </section>
-
-          <section class="view-section">
-            <h2>Tampilan Peta</h2>
-            <div
-              class="view-toggle"
-              role="group"
-              aria-label="Toggle tampilan peta"
+          <nav class="module-nav" aria-label="Menu utama WebGIS">
+            <button
+              id="dashboard-menu"
+              class="module-button active"
+              type="button"
+              data-view="dashboard"
             >
-              <button id="marker-view" class="active" type="button">
-                Marker View
-              </button>
-              <button id="heatmap-view" type="button">Heatmap View</button>
-            </div>
-          </section>
-
-          <section id="info-panel" class="info-panel">
-            <h2>Info Mahasiswa</h2>
-            <p>Klik marker pada peta untuk melihat detail mahasiswa.</p>
-          </section>
+              <b>01</b>
+              <span>Dashboard</span>
+              <small>Visualisasi analitik multidimensi</small>
+            </button>
+            <button
+              id="map-menu"
+              class="module-button"
+              type="button"
+              data-view="map"
+            >
+              <b>02</b>
+              <span>Peta Persebaran</span>
+              <small>Marker, heatmap, filter, dan info titik</small>
+            </button>
+            <button
+              id="admin-menu"
+              class="module-button"
+              type="button"
+              data-view="admin"
+            >
+              <b>03</b>
+              <span>Kelola Data Mahasiswa</span>
+              <small>Pratinjau, import, dan tambah data</small>
+            </button>
+          </nav>
         </aside>
 
-        <section class="map-area">
-          <div class="map-toolbar">
+        <section
+          id="dashboard-view"
+          class="content-view dashboard-view active"
+          aria-label="Dashboard analitik"
+        >
+          <div class="content-header">
             <div>
-              <span class="eyebrow">OpenStreetMap Layer</span>
-              <strong id="map-title">Marker View</strong>
-            </div>
-            <div id="map-legend" class="legend"></div>
-          </div>
-          <div id="map"></div>
-        </section>
-      </section>
-
-      <section
-        id="admin-view"
-        class="content-view admin-view"
-        aria-label="Dashboard admin"
-      >
-        <div class="content-header">
-          <div>
-            <span class="eyebrow">Panel Admin</span>
-            <h2>Kelola Data Mahasiswa</h2>
-          </div>
-          <div class="header-actions">
-            <span id="admin-status" class="status-pill">Perlu login</span>
-            <button
-              id="export-report-button"
-              class="header-action-button"
-              type="button"
-            >
-              Export PDF
-            </button>
-          </div>
-        </div>
-
-        <section id="admin-list-panel" class="panel admin-table-card">
-          <div class="admin-table-toolbar">
-            <div>
-              <div class="section-title">Data Mahasiswa Terbaru</div>
-              <p id="admin-table-status" class="admin-message">
-                Data hasil import excel dan input manual terbaru akan tampil di
-                sini.
-              </p>
-            </div>
-            <div class="admin-table-actions">
-              <button
-                id="admin-add-button"
-                class="primary-action nowrap-action"
-                type="button"
-              >
-                Tambah Data
-              </button>
-              <input
-                id="admin-search-input"
-                type="search"
-                placeholder="Cari nama, No BP, sekolah"
-              />
-              <button
-                id="admin-refresh-button"
-                class="secondary-action"
-                type="button"
-              >
-                Refresh
-              </button>
-            </div>
-          </div>
-
-          <div class="table-scroll">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>No BP</th>
-                  <th>Nama</th>
-                  <th>Angkatan</th>
-                  <th>JK</th>
-                  <th>Asal Sekolah</th>
-                  <th>Jalur</th>
-                  <th>Koordinat</th>
-                </tr>
-              </thead>
-              <tbody id="admin-student-table-body"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section id="admin-add-panel" class="panel admin-action-panel hidden">
-          <div class="admin-action-header">
-            <button
-              id="admin-back-button"
-              class="icon-back-button"
-              type="button"
-              aria-label="Kembali ke data mahasiswa"
-              title="Kembali"
-            >
-              <span aria-hidden="true">←</span>
-            </button>
-            <div class="admin-action-title">
-              <span class="eyebrow">Tambah Data</span>
-              <h3>Tambah data mahasiswa</h3>
+              <span class="eyebrow">Dashboard Analitik</span>
+              <h2>Visualisasi Multidimensi Mahasiswa</h2>
               <p>
-                Pilih metode input sesuai kebutuhan. Import Excel untuk banyak
-                data, atau input manual untuk satu data mahasiswa.
+                Ringkasan data, tren angkatan, dan ranking asal sekolah
+                berdasarkan data mahasiswa Program Studi Sistem Informasi
+                Universitas Andalas.
               </p>
             </div>
+            <span id="data-status" class="status-pill">Memuat</span>
           </div>
 
-          <div class="admin-entry-grid">
-            <aside class="admin-method-panel" aria-label="Metode tambah data">
-              <button
-                id="show-import-panel"
-                class="admin-method-card active"
-                type="button"
-                data-admin-panel="import"
-              >
-                <span>01</span>
-                <strong>Import Excel</strong>
-                <small>Unggah banyak data sekaligus memakai template.</small>
-              </button>
-              <button
-                id="show-manual-panel"
-                class="admin-method-card"
-                type="button"
-                data-admin-panel="manual"
-              >
-                <span>02</span>
-                <strong>Input Manual</strong>
-                <small>Tambahkan satu data mahasiswa dan geocode alamat.</small>
-              </button>
-            </aside>
+          <div class="metric-grid dashboard-metrics">
+            <article class="metric-card">
+              <span>Total Mahasiswa</span>
+              <strong id="total-mahasiswa">0</strong>
+              <small>Data asal sekolah terpetakan</small>
+            </article>
+            <article class="metric-card">
+              <span>Angkatan Aktif</span>
+              <strong id="total-angkatan">0</strong>
+              <small>Rentang data mahasiswa</small>
+            </article>
+            <article class="metric-card">
+              <span>Angkatan Terbanyak</span>
+              <strong id="kpi-top-angkatan">-</strong>
+              <small id="kpi-top-angkatan-detail">Data belum tersedia</small>
+            </article>
+            <article class="metric-card">
+              <span>Tren Terbaru</span>
+              <strong id="kpi-latest-trend">-</strong>
+              <small id="kpi-latest-trend-detail">Data belum tersedia</small>
+            </article>
+            <article class="metric-card">
+              <span>Jalur Dominan</span>
+              <strong id="kpi-top-jalur">-</strong>
+              <small id="kpi-top-jalur-detail">Data belum tersedia</small>
+            </article>
+            <article class="metric-card">
+              <span>Sekolah Dominan</span>
+              <strong id="kpi-top-school">-</strong>
+              <small id="kpi-top-school-detail">Data belum tersedia</small>
+            </article>
+          </div>
 
-          <section id="import-entry-panel" class="admin-entry-panel">
-            <div class="admin-card-header">
-              <div>
-                <div class="section-title">Import Excel</div>
-                <p class="form-hint">
-                  Untuk memasukkan banyak data sekaligus dari Excel. Setelah
-                  berhasil, data langsung tampil di pratinjau terbaru.
-                </p>
-              </div>
+          <section class="panel insight-panel">
+            <div class="section-title">Insight Otomatis</div>
+            <div class="insight-grid">
+              <article>
+                <span>Rata-rata per Angkatan</span>
+                <strong id="insight-average-cohort">-</strong>
+                <small id="insight-average-cohort-detail">Menunggu data</small>
+              </article>
+              <article>
+                <span>Konsentrasi Top 5 Sekolah</span>
+                <strong id="insight-top-school-share">-</strong>
+                <small id="insight-top-school-share-detail"
+                  >Menunggu data</small
+                >
+              </article>
+              <article>
+                <span>Porsi Jalur Dominan</span>
+                <strong id="insight-top-jalur-share">-</strong>
+                <small id="insight-top-jalur-share-detail">Menunggu data</small>
+              </article>
+              <article>
+                <span>Perubahan Angkatan Terbaru</span>
+                <strong id="insight-latest-delta">-</strong>
+                <small id="insight-latest-delta-detail">Menunggu data</small>
+              </article>
             </div>
-            <form id="csv-import-form" class="admin-form">
-              <div class="file-upload-box">
-                <div class="file-upload-copy">
-                  <strong>Pilih file Excel</strong>
-
-                  <a
-                    class="template-download-link"
-                    href="/template-import-mahasiswa.xlsx"
-                    download
-                    >Download Template Excel</a
-                  >
-                </div>
-                <input
-                  id="csv-file"
-                  type="file"
-                  accept=".csv,.txt,.xlsx,.xls"
-                />
-              </div>
-              <div class="geocoding-panel">
-                <div class="geocoding-copy">
-                  <strong>Geocoding Alamat Otomatis</strong>
-                  <small
-                    >Alamat diterjemahkan menjadi koordinat, kemudian data yang
-                    berhasil langsung disimpan.</small
-                  >
-                </div>
-                <div class="admin-form-actions">
-                  <button class="secondary-action" type="submit">
-                    Geocoding Otomatis
-                  </button>
-                </div>
-                <p id="geocoding-status" class="admin-message">
-                  Pilih file untuk memulai geocoding.
-                </p>
-              </div>
-            </form>
-            <p id="csv-import-status" class="admin-message">
-              Belum ada file dipilih.
-            </p>
+            <div class="insight-summary">
+              <p id="insight-narrative">
+                Insight akan muncul otomatis setelah statistik berhasil dimuat.
+              </p>
+            </div>
           </section>
 
-          <section id="manual-entry-panel" class="admin-entry-panel hidden">
-            <div class="admin-card-header">
-              <div>
-                <div class="section-title">Input Manual</div>
-                <p class="form-hint">
-                  Untuk menambahkan atau menguji satu data mahasiswa secara
-                  terpisah.
-                </p>
+          <div class="dashboard-grid">
+            <section class="panel dashboard-card">
+              <div class="section-title">Tren Per Angkatan</div>
+              <div class="chart-box">
+                <canvas id="trend-chart"></canvas>
               </div>
+            </section>
+
+            <section class="panel dashboard-card">
+              <div class="section-title">Ranking Asal Sekolah</div>
+              <div class="chart-box">
+                <canvas id="ranking-chart"></canvas>
+              </div>
+            </section>
+          </div>
+
+          <div class="dashboard-grid secondary-dashboard-grid">
+            <section class="panel dashboard-card compact-dashboard-card">
+              <div class="section-title">Distribusi Jalur Masuk</div>
+              <div class="chart-box chart-box-small">
+                <canvas id="jalur-chart"></canvas>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel dashboard-card school-focus-card">
+            <div class="section-title">Sekolah Penyumbang Teratas</div>
+            <div id="top-school-list" class="top-school-list">
+              <p class="admin-message">Menunggu data ranking asal sekolah.</p>
             </div>
-            <form id="manual-student-form" class="admin-form manual-form">
-              <div class="form-section">
-                <div class="form-section-title">Identitas Mahasiswa</div>
-                <div class="form-row">
-                  <label for="manual-no-bp"
-                    >No BP / NIM
-                    <input
-                      id="manual-no-bp"
-                      name="no_bp"
-                      required
-                      placeholder="2511521001"
-                    />
-                  </label>
-                  <label for="manual-angkatan"
-                    >Angkatan
-                    <input
-                      id="manual-angkatan"
-                      name="angkatan"
-                      required
-                      type="number"
-                      min="2000"
-                      max="2100"
-                      placeholder="2025"
-                    />
-                  </label>
-                </div>
-                <label for="manual-nama"
-                  >Nama Lengkap
-                  <input
-                    id="manual-nama"
-                    name="nama_lengkap"
-                    required
-                    placeholder="Nama mahasiswa"
-                  />
-                </label>
-                <label for="manual-jk"
-                  >Jenis Kelamin
-                  <select id="manual-jk" name="jenis_kelamin" required>
-                    <option value="">Pilih</option>
-                    <option value="L">Laki-laki</option>
-                    <option value="P">Perempuan</option>
-                  </select>
-                </label>
-              </div>
+          </section>
+        </section>
 
-              <div class="form-section">
-                <div class="form-section-title">Alamat dan Sekolah</div>
-                <label for="manual-sekolah"
-                  >Asal Sekolah
-                  <input
-                    id="manual-sekolah"
-                    name="asal_sekolah"
-                    required
-                    placeholder="SMAN 1 Padang"
-                  />
-                </label>
-                <label for="manual-alamat"
-                  >Alamat
-                  <input
-                    id="manual-alamat"
-                    name="alamat"
-                    required
-                    placeholder="Jl. Dr. M. Hatta, Padang, Sumatera Barat"
-                  />
-                </label>
-                <div class="admin-form-actions manual-geocoding-action">
-                  <button
-                    id="manual-geocoding-button"
-                    class="secondary-action"
-                    type="button"
-                  >
-                    Geocoding Otomatis
-                  </button>
-                </div>
-                <p id="manual-geocoding-status" class="admin-message">
-                  Isi alamat, lalu tekan Geocoding Otomatis.
+        <section
+          id="map-view"
+          class="content-view map-view"
+          aria-label="Peta persebaran asal mahasiswa"
+        >
+          <aside class="map-control-panel">
+            <section class="filter-section">
+              <h2>Filter Data</h2>
+
+              <label for="search-input">Pencarian</label>
+              <input
+                id="search-input"
+                type="search"
+                placeholder="Nama, No BP, asal sekolah, jalur"
+              />
+
+              <label for="angkatan">Angkatan</label>
+              <select id="angkatan" name="angkatan">
+                <option value="">Semua Angkatan</option>
+              </select>
+
+              <fieldset class="jalur-filter">
+                <legend>Jalur Penerimaan</legend>
+                <div id="jalur-filter-options"></div>
+              </fieldset>
+
+              <p id="filter-result-count" class="filter-result-count">
+                Menunggu data peta.
+              </p>
+            </section>
+
+            <section class="view-section">
+              <h2>Tampilan Peta</h2>
+              <div
+                class="view-toggle"
+                role="group"
+                aria-label="Toggle tampilan peta"
+              >
+                <button id="marker-view" class="active" type="button">
+                  Marker View
+                </button>
+                <button id="heatmap-view" type="button">Heatmap View</button>
+              </div>
+            </section>
+
+            <section id="info-panel" class="info-panel">
+              <h2>Info Mahasiswa</h2>
+              <p>Klik marker pada peta untuk melihat detail mahasiswa.</p>
+            </section>
+          </aside>
+
+          <section class="map-area">
+            <div class="map-toolbar">
+              <div>
+                <span class="eyebrow">OpenStreetMap Layer</span>
+                <strong id="map-title">Marker View</strong>
+              </div>
+              <div id="map-legend" class="legend"></div>
+            </div>
+            <div id="map"></div>
+          </section>
+        </section>
+
+        <section
+          id="admin-view"
+          class="content-view admin-view"
+          aria-label="Dashboard admin"
+        >
+          <div class="content-header">
+            <div>
+              <span class="eyebrow">Panel Admin</span>
+              <h2>Kelola Data Mahasiswa</h2>
+            </div>
+            <div class="header-actions">
+              <span id="admin-status" class="status-pill">Perlu login</span>
+              <button
+                id="export-report-button"
+                class="header-action-button"
+                type="button"
+              >
+                Export PDF
+              </button>
+            </div>
+          </div>
+
+          <section id="admin-list-panel" class="panel admin-table-card">
+            <div class="admin-table-toolbar">
+              <div>
+                <div class="section-title">Data Mahasiswa</div>
+                <p id="admin-table-status" class="admin-message">
+                  Seluruh data mahasiswa ditampilkan 20 data per halaman.
                 </p>
               </div>
-
-              <div
-                id="manual-coordinate-section"
-                class="form-row coordinate-section"
-              >
-                <label for="manual-latitude">
-                  Latitude
-                  <input
-                    id="manual-latitude"
-                    name="latitude"
-                    placeholder="-0.914900"
-                  />
-                </label>
-                <label for="manual-longitude">
-                  Longitude
-                  <input
-                    id="manual-longitude"
-                    name="longitude"
-                    placeholder="100.458400"
-                  />
-                </label>
-              </div>
-              <div class="admin-form-actions">
-                <button class="primary-action" type="submit">
-                  Simpan Data
+              <div class="admin-table-actions">
+                <button
+                  id="admin-add-button"
+                  class="primary-action nowrap-action"
+                  type="button"
+                >
+                  Tambah Data
+                </button>
+                <input
+                  id="admin-search-input"
+                  type="search"
+                  placeholder="Cari nama, No BP, sekolah"
+                />
+                <button
+                  id="admin-refresh-button"
+                  class="secondary-action"
+                  type="button"
+                >
+                  Refresh
                 </button>
               </div>
-            </form>
+            </div>
+
+            <div class="admin-filter-bar" aria-label="Filter data mahasiswa">
+              <label for="admin-jalur-filter">
+                <span>Jalur Masuk</span>
+                <select id="admin-jalur-filter">
+                  <option value="">Semua Jalur</option>
+                </select>
+              </label>
+              <label for="admin-angkatan-filter">
+                <span>Angkatan</span>
+                <select id="admin-angkatan-filter">
+                  <option value="">Semua Angkatan</option>
+                </select>
+              </label>
+              <label for="admin-gender-filter">
+                <span>Jenis Kelamin</span>
+                <select id="admin-gender-filter">
+                  <option value="">Semua Jenis Kelamin</option>
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
+              </label>
+              <button
+                id="admin-reset-filter"
+                class="admin-reset-filter"
+                type="button"
+              >
+                Reset Filter
+              </button>
+            </div>
+
+            <div class="table-scroll">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>No BP</th>
+                    <th>Nama</th>
+                    <th>Angkatan</th>
+                    <th>JK</th>
+                    <th>Asal Sekolah</th>
+                    <th>Jalur</th>
+                    <th>Koordinat</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-student-table-body"></tbody>
+              </table>
+            </div>
+            <div
+              id="admin-table-pagination"
+              class="admin-table-pagination hidden"
+              aria-label="Navigasi halaman data mahasiswa"
+            >
+              <span id="admin-page-info" class="admin-message"></span>
+              <div class="admin-pagination-actions">
+                <button
+                  id="admin-previous-page"
+                  class="pagination-icon-button"
+                  type="button"
+                  aria-label="Halaman sebelumnya"
+                  title="Halaman sebelumnya"
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m15 18-6-6 6-6"></path>
+                  </svg>
+                </button>
+                <button
+                  id="admin-next-page"
+                  class="pagination-icon-button"
+                  type="button"
+                  aria-label="Halaman berikutnya"
+                  title="Halaman berikutnya"
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m9 18 6-6-6-6"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
           </section>
-          </div>
+
+          <section id="admin-add-panel" class="panel admin-action-panel hidden">
+            <div class="admin-action-header">
+              <button
+                id="admin-back-button"
+                class="icon-back-button"
+                type="button"
+                aria-label="Kembali ke data mahasiswa"
+                title="Kembali"
+              >
+                <span aria-hidden="true">←</span>
+              </button>
+              <div class="admin-action-title">
+                <span class="eyebrow">Tambah Data</span>
+                <h3>Tambah data mahasiswa</h3>
+                <p>
+                  Pilih metode input sesuai kebutuhan. Import Excel untuk banyak
+                  data, atau input manual untuk satu data mahasiswa.
+                </p>
+              </div>
+            </div>
+
+            <div class="admin-entry-grid">
+              <aside class="admin-method-panel" aria-label="Metode tambah data">
+                <button
+                  id="show-import-panel"
+                  class="admin-method-card active"
+                  type="button"
+                  data-admin-panel="import"
+                >
+                  <span>01</span>
+                  <strong>Import Excel</strong>
+                  <small>Unggah banyak data sekaligus memakai template.</small>
+                </button>
+                <button
+                  id="show-manual-panel"
+                  class="admin-method-card"
+                  type="button"
+                  data-admin-panel="manual"
+                >
+                  <span>02</span>
+                  <strong>Input Manual</strong>
+                  <small
+                    >Tambahkan satu data mahasiswa dan geocode alamat.</small
+                  >
+                </button>
+              </aside>
+
+              <section id="import-entry-panel" class="admin-entry-panel">
+                <div class="admin-card-header">
+                  <div>
+                    <div class="section-title">Import Excel</div>
+                    <p class="form-hint">
+                      Untuk memasukkan banyak data sekaligus dari Excel. Setelah
+                      berhasil, data langsung tampil di pratinjau terbaru.
+                    </p>
+                  </div>
+                </div>
+                <form id="csv-import-form" class="admin-form">
+                  <div class="file-upload-box">
+                    <div class="file-upload-copy">
+                      <strong>Pilih file Excel</strong>
+
+                      <a
+                        class="template-download-link"
+                        href="/template-import-mahasiswa.xlsx"
+                        download
+                        >Download Template Excel</a
+                      >
+                    </div>
+                    <input
+                      id="csv-file"
+                      type="file"
+                      accept=".csv,.txt,.xlsx,.xls"
+                    />
+                  </div>
+                  <div class="geocoding-panel">
+                    <div class="geocoding-copy">
+                      <strong>Geocoding Alamat Otomatis</strong>
+                      <small
+                        >Alamat diterjemahkan menjadi koordinat, kemudian data
+                        yang berhasil langsung disimpan.</small
+                      >
+                    </div>
+                    <div class="admin-form-actions">
+                      <button class="secondary-action" type="submit">
+                        Geocoding Otomatis
+                      </button>
+                    </div>
+                    <p id="geocoding-status" class="admin-message">
+                      Pilih file untuk memulai geocoding.
+                    </p>
+                  </div>
+                </form>
+                <p id="csv-import-status" class="admin-message">
+                  Belum ada file dipilih.
+                </p>
+              </section>
+
+              <section id="manual-entry-panel" class="admin-entry-panel hidden">
+                <div class="admin-card-header">
+                  <div>
+                    <div class="section-title">Input Manual</div>
+                    <p class="form-hint">
+                      Untuk menambahkan atau menguji satu data mahasiswa secara
+                      terpisah.
+                    </p>
+                  </div>
+                </div>
+                <form id="manual-student-form" class="admin-form manual-form">
+                  <div class="form-section">
+                    <div class="form-section-title">Identitas Mahasiswa</div>
+                    <div class="form-row">
+                      <label for="manual-no-bp"
+                        >No BP / NIM
+                        <input
+                          id="manual-no-bp"
+                          name="no_bp"
+                          required
+                          placeholder="2511521001"
+                        />
+                      </label>
+                      <label for="manual-angkatan"
+                        >Angkatan
+                        <input
+                          id="manual-angkatan"
+                          name="angkatan"
+                          required
+                          type="number"
+                          min="2000"
+                          max="2100"
+                          placeholder="2025"
+                        />
+                      </label>
+                    </div>
+                    <label for="manual-nama"
+                      >Nama Lengkap
+                      <input
+                        id="manual-nama"
+                        name="nama_lengkap"
+                        required
+                        placeholder="Nama mahasiswa"
+                      />
+                    </label>
+                    <label for="manual-jk"
+                      >Jenis Kelamin
+                      <select id="manual-jk" name="jenis_kelamin" required>
+                        <option value="">Pilih</option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <div class="form-section">
+                    <div class="form-section-title">Alamat dan Sekolah</div>
+                    <label for="manual-sekolah"
+                      >Asal Sekolah
+                      <input
+                        id="manual-sekolah"
+                        name="asal_sekolah"
+                        required
+                        placeholder="SMAN 1 Padang"
+                      />
+                    </label>
+                    <label for="manual-alamat"
+                      >Alamat
+                      <input
+                        id="manual-alamat"
+                        name="alamat"
+                        required
+                        placeholder="Jl. Dr. M. Hatta, Padang, Sumatera Barat"
+                      />
+                    </label>
+                    <div class="manual-geocoding-action">
+                      <p id="manual-geocoding-status" class="admin-message">
+                        Isi alamat, lalu tekan Geocoding Otomatis.
+                      </p>
+                      <button
+                        id="manual-geocoding-button"
+                        class="secondary-action"
+                        type="button"
+                      >
+                        Geocoding Otomatis
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    id="manual-coordinate-section"
+                    class="form-row coordinate-section"
+                  >
+                    <label for="manual-latitude">
+                      Latitude
+                      <input
+                        id="manual-latitude"
+                        name="latitude"
+                        placeholder="-0.914900"
+                      />
+                    </label>
+                    <label for="manual-longitude">
+                      Longitude
+                      <input
+                        id="manual-longitude"
+                        name="longitude"
+                        placeholder="100.458400"
+                      />
+                    </label>
+                  </div>
+                  <div class="admin-form-actions">
+                    <button class="primary-action" type="submit">
+                      Simpan Data
+                    </button>
+                  </div>
+                </form>
+              </section>
+            </div>
+          </section>
         </section>
-      </section>
       </div>
     </main>
 
@@ -709,19 +871,11 @@
       class="login-modal hidden"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="login-title"
+      aria-label="Login GeoSIS Unand"
     >
       <div class="login-dialog">
         <div class="login-brand">
-          <div class="login-mark">
-            <img src="images/hmsi.jpg" alt="Logo HMSI" />
-          </div>
-          <div>
-            <span class="eyebrow">Sistem Informasi Unand</span>
-            <div class="section-title" id="login-title">
-              Masuk ke AsalSI WebGIS
-            </div>
-          </div>
+          <img src="images/logo-transparent.png" alt="GeoSIS Unand" />
         </div>
         <form id="admin-login-form" class="admin-form">
           <label class="login-field" for="admin-username">
@@ -762,6 +916,5 @@
     <script src="js/map.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/admin.js"></script>
-    <script src="js/export.js"></script>
   </body>
 </html>

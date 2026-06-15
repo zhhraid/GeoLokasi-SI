@@ -18,21 +18,39 @@ async function ensureMahasiswaAlamatColumn() {
   await pool.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS alamat TEXT");
 }
 
-function buildSearchFilter(query) {
+function buildAdminFilters(query) {
+  const filters = [];
   const values = [];
-  let whereClause = "";
 
   if (query.search) {
     values.push(`%${query.search.trim()}%`);
-    whereClause = `
-      WHERE nama_lengkap ILIKE $1
-         OR no_bp ILIKE $1
-         OR asal_sekolah ILIKE $1
-         OR ${jalurMasukSql} ILIKE $1
-    `;
+    filters.push(`(
+      nama_lengkap ILIKE $${values.length}
+      OR no_bp ILIKE $${values.length}
+      OR asal_sekolah ILIKE $${values.length}
+      OR ${jalurMasukSql} ILIKE $${values.length}
+    )`);
   }
 
-  return { values, whereClause };
+  if (query.jalur) {
+    values.push(query.jalur);
+    filters.push(`${jalurMasukSql} = $${values.length}`);
+  }
+
+  if (query.angkatan) {
+    values.push(query.angkatan);
+    filters.push(`angkatan = $${values.length}`);
+  }
+
+  if (query.jenis_kelamin) {
+    values.push(query.jenis_kelamin);
+    filters.push(`jenis_kelamin = $${values.length}`);
+  }
+
+  return {
+    values,
+    whereClause: filters.length ? `WHERE ${filters.join(" AND ")}` : "",
+  };
 }
 
 async function getNextId(client) {
@@ -145,9 +163,22 @@ router.get("/dashboard", async (req, res) => {
 router.get("/mahasiswa", async (req, res) => {
   try {
     await ensureMahasiswaAlamatColumn();
-    const limit = Math.min(Number(req.query.limit || 100), 300);
-    const { values, whereClause } = buildSearchFilter(req.query);
-    values.push(limit);
+    const pageSize = 20;
+    const requestedPage = Number.parseInt(req.query.page, 10);
+    const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    const { values, whereClause } = buildAdminFilters(req.query);
+    const countResult = await pool.query(
+      `
+        SELECT COUNT(*) AS total
+        FROM mahasiswa
+        ${whereClause}
+      `,
+      values
+    );
+    const total = Number(countResult.rows[0].total);
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const currentPage = Math.min(page, totalPages);
+    const queryValues = [...values, pageSize, (currentPage - 1) * pageSize];
 
     const result = await pool.query(
       `
@@ -156,15 +187,77 @@ router.get("/mahasiswa", async (req, res) => {
         FROM mahasiswa
         ${whereClause}
         ORDER BY id DESC
-        LIMIT $${values.length}
+        LIMIT $${queryValues.length - 1}
+        OFFSET $${queryValues.length}
+      `,
+      queryValues
+    );
+
+    res.json({
+      rows: result.rows,
+      pagination: {
+        page: currentPage,
+        pageSize,
+        total,
+        totalPages,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Gagal mengambil data admin mahasiswa",
+      error: error.message,
+    });
+  }
+});
+
+router.get("/mahasiswa/filters", async (req, res) => {
+  try {
+    const [angkatanResult, jalurResult] = await Promise.all([
+      pool.query(`
+        SELECT DISTINCT angkatan
+        FROM mahasiswa
+        WHERE angkatan IS NOT NULL
+        ORDER BY angkatan DESC
+      `),
+      pool.query(`
+        SELECT DISTINCT ${jalurMasukSql} AS jalur_masuk
+        FROM mahasiswa
+        WHERE ${jalurMasukSql} IS NOT NULL
+        ORDER BY jalur_masuk ASC
+      `),
+    ]);
+
+    res.json({
+      angkatan: angkatanResult.rows.map((row) => row.angkatan),
+      jalurMasuk: jalurResult.rows.map((row) => row.jalur_masuk),
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Gagal mengambil pilihan filter mahasiswa",
+      error: error.message,
+    });
+  }
+});
+
+router.get("/mahasiswa/export", async (req, res) => {
+  try {
+    await ensureMahasiswaAlamatColumn();
+    const { values, whereClause } = buildAdminFilters(req.query);
+    const result = await pool.query(
+      `
+        SELECT id, no_bp, angkatan, nama_lengkap, jenis_kelamin,
+               asal_sekolah, alamat, longitude, latitude, ${jalurMasukSql} AS jalur_masuk
+        FROM mahasiswa
+        ${whereClause}
+        ORDER BY id DESC
       `,
       values
     );
 
-    res.json(result.rows);
+    res.json({ rows: result.rows });
   } catch (error) {
     res.status(500).json({
-      message: "Gagal mengambil data admin mahasiswa",
+      message: "Gagal mengambil data export mahasiswa",
       error: error.message,
     });
   }

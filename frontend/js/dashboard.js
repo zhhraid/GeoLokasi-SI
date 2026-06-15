@@ -419,10 +419,45 @@ function renderTrendQuality(rows) {
   trendBox.textContent = `${trendBox.textContent} ${pattern}`;
 }
 
-function buildReportHtml(summary, rankingRows) {
+function buildFilteredReportData(rows) {
+  const countBy = (key, fallback = "Belum tersedia") => {
+    const counts = new Map();
+
+    rows.forEach((row) => {
+      const value = row[key] || fallback;
+      counts.set(value, (counts.get(value) || 0) + 1);
+    });
+
+    return [...counts.entries()].map(([value, total]) => ({ value, total }));
+  };
+  const trenAngkatan = countBy("angkatan")
+    .map((row) => ({ angkatan: row.value, total: row.total }))
+    .sort((a, b) => Number(a.angkatan) - Number(b.angkatan));
+  const jalurMasuk = countBy("jalur_masuk")
+    .map((row) => ({ jalur_masuk: row.value, total: row.total }))
+    .sort((a, b) => b.total - a.total);
+  const rankingRows = countBy("asal_sekolah")
+    .map((row) => ({ asal_sekolah: row.value, total: row.total }))
+    .sort((a, b) => b.total - a.total || String(a.asal_sekolah).localeCompare(String(b.asal_sekolah)))
+    .slice(0, 10);
+
+  return {
+    rankingRows,
+    summary: {
+      totalMahasiswa: rows.length,
+      trenAngkatan,
+      jalurMasuk,
+    },
+  };
+}
+
+function buildReportHtml(summary, rankingRows, options = {}) {
   const trenAngkatan = summary.trenAngkatan || [];
   const jalurMasuk = summary.jalurMasuk || [];
   const totalMahasiswa = Number(summary.totalMahasiswa || 0);
+  const filters = options.filters || null;
+  const studentRows = options.studentRows || [];
+  const reportAnalysis = options.analysis || latestAutoReport;
   const topAngkatan = [...trenAngkatan].sort(
     (a, b) => Number(b.total) - Number(a.total),
   )[0];
@@ -436,9 +471,14 @@ function buildReportHtml(summary, rankingRows) {
     <head>
       <meta charset="UTF-8">
       <title>Laporan Statistik AsalSI WebGIS</title>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
       <style>
-        @page { size: A4 portrait; margin: 13mm; }
-        * { box-sizing: border-box; }
+        @page { size: A4 portrait; margin: 0; }
+        * {
+          box-sizing: border-box;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
         body {
           margin: 0;
           color: #14213d;
@@ -558,6 +598,24 @@ function buildReportHtml(summary, rankingRows) {
           color: #14213d;
           font-size: 16px;
         }
+        .filter-summary {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 6px 14px;
+          margin-bottom: 16px;
+          padding: 10px 12px;
+          border: 1px solid #d7e4df;
+          border-radius: 7px;
+          background: #f8fbfa;
+        }
+        .filter-summary div { display: grid; gap: 2px; }
+        .filter-summary span {
+          color: #64748b;
+          font-size: 8px;
+          font-weight: 700;
+          text-transform: uppercase;
+        }
+        .filter-summary strong { color: #14213d; font-size: 10px; }
         table {
           width: 100%;
           border-collapse: collapse;
@@ -579,6 +637,7 @@ function buildReportHtml(summary, rankingRows) {
         }
         tbody tr:nth-child(even) { background: #f4f8f7; }
         tbody tr { break-inside: avoid; }
+        thead { display: table-header-group; }
         .number-cell { width: 38px; text-align: center; }
         .analysis-panel {
           display: grid;
@@ -602,15 +661,61 @@ function buildReportHtml(summary, rankingRows) {
         }
         @media print {
           .no-print { display: none; }
-          body { background: #ffffff; }
-          .report-page {
-            width: auto;
-            min-height: 0;
+          html, body {
+            width: 210mm;
             margin: 0;
-            padding: 0;
+            background: #ffffff;
+          }
+          .report-page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0;
+            padding: 16mm;
             box-shadow: none;
           }
-          h2, .summary-grid, .analysis-panel { break-after: avoid; }
+          .report-header {
+            color: #ffffff !important;
+            background: #047857 !important;
+            box-shadow: inset 0 0 0 1000px #047857 !important;
+          }
+          .report-header .eyebrow {
+            color: #d1fae5 !important;
+          }
+          .report-header p {
+            color: #ecfdf5 !important;
+          }
+          .report-header::after {
+            background: transparent !important;
+            box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 0.12) !important;
+          }
+          th {
+            color: #ffffff !important;
+            background: #0f766e !important;
+            box-shadow: inset 0 0 0 1000px #0f766e !important;
+          }
+          .summary-card,
+          .filter-summary,
+          .analysis-panel {
+            background: #f8fbfa !important;
+            box-shadow: inset 0 0 0 1000px #f8fbfa !important;
+          }
+          tbody tr:nth-child(even) td {
+            background: #f4f8f7 !important;
+            box-shadow: inset 0 0 0 1000px #f4f8f7 !important;
+          }
+          .report-header,
+          .filter-summary,
+          .summary-card,
+          .analysis-panel,
+          th,
+          tbody tr:nth-child(even) {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            forced-color-adjust: none;
+          }
+          h2, .summary-grid, .filter-summary, .analysis-panel {
+            break-after: avoid;
+          }
           table { break-inside: auto; }
         }
         @media (max-width: 720px) {
@@ -624,9 +729,9 @@ function buildReportHtml(summary, rankingRows) {
       <div class="report-toolbar no-print">
         <div class="toolbar-copy">
           <strong>Pratinjau Laporan Statistik</strong>
-          <span>Gunakan dialog cetak untuk mencetak atau menyimpan sebagai PDF.</span>
+          <span>Klik Unduh PDF untuk menyimpan laporan ke unduhan browser.</span>
         </div>
-        <button id="print-report-button" class="print-button" type="button">Cetak / Simpan PDF</button>
+        <button id="download-report-button" class="print-button" type="button">Unduh PDF</button>
       </div>
       <main class="report-page">
       <header class="report-header">
@@ -637,6 +742,16 @@ function buildReportHtml(summary, rankingRows) {
           <p>Dibuat pada ${escapeReportHtml(formatReportDate())}</p>
         </div>
       </header>
+
+      ${filters ? `
+      <h2>Filter yang Digunakan</h2>
+      <section class="filter-summary">
+        <div><span>Pencarian</span><strong>${escapeReportHtml(filters.pencarian)}</strong></div>
+        <div><span>Jalur Masuk</span><strong>${escapeReportHtml(filters.jalurMasuk)}</strong></div>
+        <div><span>Angkatan</span><strong>${escapeReportHtml(filters.angkatan)}</strong></div>
+        <div><span>Jenis Kelamin</span><strong>${escapeReportHtml(filters.jenisKelamin)}</strong></div>
+      </section>
+      ` : ""}
 
       <section class="summary-grid">
         <div class="summary-card">
@@ -683,12 +798,29 @@ function buildReportHtml(summary, rankingRows) {
 
       <h2>Laporan Statistik Otomatis</h2>
       <section class="analysis-panel">
-        ${latestAutoReport
+        ${reportAnalysis
           .split("\n")
           .filter(Boolean)
           .map((paragraph) => `<p>${escapeReportHtml(paragraph)}</p>`)
           .join("")}
       </section>
+
+      ${studentRows.length ? `
+      <h2>Data Mahasiswa Sesuai Filter</h2>
+      <table>
+        <thead>
+          <tr><th>No</th><th>No BP</th><th>Nama</th><th>Angkatan</th><th>JK</th><th>Asal Sekolah</th><th>Jalur</th></tr>
+        </thead>
+        <tbody>${renderReportRows(studentRows, [
+          { key: "no_bp" },
+          { key: "nama_lengkap" },
+          { key: "angkatan" },
+          { key: "jenis_kelamin" },
+          { key: "asal_sekolah" },
+          { key: "jalur_masuk" },
+        ])}</tbody>
+      </table>
+      ` : ""}
 
       <div class="footer">
         Laporan ini dibuat otomatis dari database WebGIS dan mencerminkan data yang tersedia saat tombol export ditekan.
@@ -697,9 +829,47 @@ function buildReportHtml(summary, rankingRows) {
 
       <script>
         window.addEventListener("load", () => {
-          document.getElementById("print-report-button").addEventListener("click", () => {
-            window.focus();
-            window.print();
+          const downloadButton = document.getElementById("download-report-button");
+
+          downloadButton.addEventListener("click", async () => {
+            const originalText = downloadButton.textContent;
+            downloadButton.disabled = true;
+            downloadButton.textContent = "Menyiapkan PDF...";
+
+            try {
+              if (typeof html2pdf === "undefined") {
+                throw new Error("Library PDF belum berhasil dimuat.");
+              }
+
+              await html2pdf()
+                .set({
+                  margin: 0,
+                  filename: "GeoSIS-Laporan-${new Date().toISOString().slice(0, 10)}.pdf",
+                  image: { type: "jpeg", quality: 0.98 },
+                  html2canvas: {
+                    scale: 2,
+                    backgroundColor: "#ffffff",
+                    logging: false,
+                    useCORS: true
+                  },
+                  jsPDF: {
+                    unit: "mm",
+                    format: "a4",
+                    orientation: "portrait"
+                  },
+                  pagebreak: {
+                    mode: ["css", "legacy"],
+                    avoid: [".report-header", ".filter-summary", ".summary-card", ".analysis-panel", "tr"]
+                  }
+                })
+                .from(document.querySelector(".report-page"))
+                .save();
+            } catch (error) {
+              alert(error.message || "Gagal mengunduh PDF.");
+            } finally {
+              downloadButton.disabled = false;
+              downloadButton.textContent = originalText;
+            }
           });
         });
       </script>
@@ -710,18 +880,79 @@ function buildReportHtml(summary, rankingRows) {
 
 async function exportDashboardReport() {
   const button = document.getElementById("export-report-button");
+  const reportWindow = window.open("", "_blank");
+
+  if (!reportWindow) {
+    alert("Pop-up laporan diblokir browser. Izinkan pop-up untuk membuat laporan PDF.");
+    return;
+  }
+
   button.disabled = true;
   button.textContent = "Menyiapkan...";
+  reportWindow.document.open();
+  reportWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="id">
+      <head>
+        <meta charset="UTF-8">
+        <title>Menyiapkan Laporan GeoSIS</title>
+        <style>
+          body {
+            display: grid;
+            min-height: 100vh;
+            margin: 0;
+            place-items: center;
+            color: #064e3b;
+            background: #f8fafc;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+          div {
+            padding: 24px 28px;
+            border: 1px solid #d1fae5;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+            text-align: center;
+          }
+          strong { display: block; margin-bottom: 6px; }
+          span { color: #64748b; font-size: 13px; }
+        </style>
+      </head>
+      <body>
+        <div>
+          <strong>Menyiapkan laporan GeoSIS...</strong>
+          <span>Data statistik sedang dimuat.</span>
+        </div>
+      </body>
+    </html>
+  `);
+  reportWindow.document.close();
 
   try {
+    if (typeof window.getAdminExportData === "function") {
+      const exportData = await window.getAdminExportData();
+      const filteredReport = buildFilteredReportData(exportData.rows);
+      const filterDescription = `Laporan memuat ${exportData.rows.length} mahasiswa yang sesuai dengan filter aktif pada tabel admin.`;
+
+      reportWindow.document.open();
+      reportWindow.document.write(
+        buildReportHtml(filteredReport.summary, filteredReport.rankingRows, {
+          analysis: filterDescription,
+          filters: exportData.filters,
+          studentRows: exportData.rows,
+        }),
+      );
+      reportWindow.document.close();
+      reportWindow.focus();
+      return;
+    }
+
     if (!latestDashboardSummary) {
       await loadDashboard();
     }
 
-    const reportWindow = window.open("", "_blank");
-
-    if (!reportWindow) {
-      throw new Error("Pop-up laporan diblokir browser.");
+    if (!latestDashboardSummary) {
+      throw new Error("Data statistik belum tersedia untuk laporan.");
     }
 
     reportWindow.document.open();
@@ -731,6 +962,7 @@ async function exportDashboardReport() {
     reportWindow.document.close();
     reportWindow.focus();
   } catch (error) {
+    reportWindow.close();
     alert(error.message || "Gagal membuat laporan PDF.");
   } finally {
     button.disabled = false;

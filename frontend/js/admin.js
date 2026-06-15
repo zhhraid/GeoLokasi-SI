@@ -9,7 +9,15 @@ const loginModal = document.getElementById("login-modal");
 const loginStatus = document.getElementById("login-status");
 const adminStatus = document.getElementById("admin-status");
 const adminSearchInput = document.getElementById("admin-search-input");
+const adminJalurFilter = document.getElementById("admin-jalur-filter");
+const adminAngkatanFilter = document.getElementById("admin-angkatan-filter");
+const adminGenderFilter = document.getElementById("admin-gender-filter");
+const adminResetFilterButton = document.getElementById("admin-reset-filter");
 const adminTableStatus = document.getElementById("admin-table-status");
+const adminTablePagination = document.getElementById("admin-table-pagination");
+const adminPageInfo = document.getElementById("admin-page-info");
+const adminPreviousPageButton = document.getElementById("admin-previous-page");
+const adminNextPageButton = document.getElementById("admin-next-page");
 const manualNoBpInput = document.getElementById("manual-no-bp");
 const geocodingStatus = document.getElementById("geocoding-status");
 const manualAddressInput = document.getElementById("manual-alamat");
@@ -20,6 +28,9 @@ const manualGeocodingStatus = document.getElementById("manual-geocoding-status")
 const PENDING_VIEW_KEY = "asalsi_pending_view";
 let openAdminAfterLogin = false;
 let viewAfterLogin = null;
+let adminCurrentPage = 1;
+let adminTotalPages = 1;
+let adminFilterOptionsLoaded = false;
 
 localStorage.removeItem(ADMIN_TOKEN_KEY);
 localStorage.removeItem(ADMIN_ROLE_KEY);
@@ -158,8 +169,32 @@ function formatCoordinate(latitude, longitude) {
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 }
 
-function renderAdminTable(rows) {
+async function loadAdminFilterOptions() {
+  if (adminFilterOptionsLoaded) {
+    return;
+  }
+
+  const options = await adminRequest("/admin/mahasiswa/filters");
+
+  adminJalurFilter.innerHTML = [
+    '<option value="">Semua Jalur</option>',
+    ...options.jalurMasuk.map(
+      (jalur) => `<option value="${escapeHtml(jalur)}">${escapeHtml(jalur)}</option>`,
+    ),
+  ].join("");
+  adminAngkatanFilter.innerHTML = [
+    '<option value="">Semua Angkatan</option>',
+    ...options.angkatan.map(
+      (angkatan) => `<option value="${escapeHtml(angkatan)}">${escapeHtml(angkatan)}</option>`,
+    ),
+  ].join("");
+  adminFilterOptionsLoaded = true;
+}
+
+function renderAdminTable(rows, pagination) {
   const tbody = document.getElementById("admin-student-table-body");
+  adminCurrentPage = pagination.page;
+  adminTotalPages = pagination.totalPages;
 
   if (rows.length === 0) {
     tbody.innerHTML = `
@@ -167,7 +202,8 @@ function renderAdminTable(rows) {
         <td colspan="7">Belum ada data yang cocok. Import CSV atau isi form manual terlebih dahulu.</td>
       </tr>
     `;
-    adminTableStatus.textContent = "Belum ada data terbaru untuk ditampilkan.";
+    adminTableStatus.textContent = "Belum ada data untuk ditampilkan.";
+    adminTablePagination.classList.add("hidden");
     return;
   }
 
@@ -185,7 +221,13 @@ function renderAdminTable(rows) {
     `)
     .join("");
 
-  adminTableStatus.textContent = `${rows.length} data terbaru ditampilkan dari database.`;
+  const firstRow = (pagination.page - 1) * pagination.pageSize + 1;
+  const lastRow = firstRow + rows.length - 1;
+  adminTableStatus.textContent = `Menampilkan data ${firstRow}-${lastRow} dari ${pagination.total} mahasiswa.`;
+  adminPageInfo.textContent = `Halaman ${pagination.page} dari ${pagination.totalPages}`;
+  adminPreviousPageButton.disabled = pagination.page <= 1;
+  adminNextPageButton.disabled = pagination.page >= pagination.totalPages;
+  adminTablePagination.classList.remove("hidden");
 }
 
 function setAdminEntryPanel(panelName) {
@@ -228,16 +270,58 @@ function syncAdminPageModeFromPath() {
   );
 }
 
-async function loadAdminRows() {
+async function loadAdminRows(page = adminCurrentPage) {
+  const params = getAdminFilterParams();
+  params.append("page", page);
+
+  const result = await adminRequest(`/admin/mahasiswa?${params.toString()}`);
+  renderAdminTable(result.rows, result.pagination);
+}
+
+function getAdminFilterParams() {
   const params = new URLSearchParams();
   const search = adminSearchInput.value.trim();
+  const jalur = adminJalurFilter.value;
+  const angkatan = adminAngkatanFilter.value;
+  const jenisKelamin = adminGenderFilter.value;
 
   if (search) {
     params.append("search", search);
   }
 
-  const rows = await adminRequest(`/admin/mahasiswa?${params.toString()}`);
-  renderAdminTable(rows);
+  if (jalur) {
+    params.append("jalur", jalur);
+  }
+
+  if (angkatan) {
+    params.append("angkatan", angkatan);
+  }
+
+  if (jenisKelamin) {
+    params.append("jenis_kelamin", jenisKelamin);
+  }
+
+  return params;
+}
+
+async function getAdminExportData() {
+  const params = getAdminFilterParams();
+  const result = await adminRequest(`/admin/mahasiswa/export?${params.toString()}`);
+
+  return {
+    rows: result.rows,
+    filters: {
+      pencarian: adminSearchInput.value.trim() || "Semua",
+      jalurMasuk: adminJalurFilter.value || "Semua Jalur",
+      angkatan: adminAngkatanFilter.value || "Semua Angkatan",
+      jenisKelamin:
+        adminGenderFilter.value === "L"
+          ? "Laki-laki"
+          : adminGenderFilter.value === "P"
+            ? "Perempuan"
+            : "Semua Jenis Kelamin",
+    },
+  };
 }
 
 async function loadAdminPanel() {
@@ -254,12 +338,14 @@ async function loadAdminPanel() {
   window.setContentView("admin");
   syncAdminPageModeFromPath();
   adminStatus.textContent = "Memuat";
+  await loadAdminFilterOptions();
   await loadAdminRows();
   adminStatus.textContent = "Admin aktif";
 }
 
 window.openAdminView = loadAdminPanel;
 window.openLoginModal = showLoginModal;
+window.getAdminExportData = getAdminExportData;
 
 adminLoginButton.addEventListener("click", () => showLoginModal({ viewAfterLogin: "dashboard" }));
 
@@ -367,7 +453,7 @@ document.getElementById("csv-import-form").addEventListener("submit", async (eve
       body: JSON.stringify(payload),
     });
 
-    await loadAdminRows();
+    await loadAdminRows(1);
     const sheetInfo = result.sourceSheet ? ` dari sheet ${result.sourceSheet}` : "";
     status.textContent = `${result.imported} data berhasil diimport${sheetInfo}, ${result.geocoded} alamat di-geocoding, ${result.rejected} baris ditolak.`;
     geocodingStatus.textContent = "Geocoding selesai.";
@@ -436,7 +522,7 @@ document.getElementById("manual-student-form").addEventListener("submit", async 
     });
 
     form.reset();
-    await loadAdminRows();
+    await loadAdminRows(1);
     manualGeocodingStatus.textContent = result.geocoded
       ? "Alamat berhasil diterjemahkan dan data disimpan."
       : "Data dengan koordinat hasil geocoding berhasil disimpan.";
@@ -445,9 +531,29 @@ document.getElementById("manual-student-form").addEventListener("submit", async 
   }
 });
 
-adminSearchInput.addEventListener("input", debounceAdmin(loadAdminRows));
+adminSearchInput.addEventListener("input", debounceAdmin(() => loadAdminRows(1)));
+[adminJalurFilter, adminAngkatanFilter, adminGenderFilter].forEach((filter) => {
+  filter.addEventListener("change", () => loadAdminRows(1));
+});
+adminResetFilterButton.addEventListener("click", () => {
+  adminSearchInput.value = "";
+  adminJalurFilter.value = "";
+  adminAngkatanFilter.value = "";
+  adminGenderFilter.value = "";
+  loadAdminRows(1);
+});
 document.getElementById("admin-refresh-button").addEventListener("click", () => {
-  loadAdminRows();
+  loadAdminRows(adminCurrentPage);
+});
+adminPreviousPageButton.addEventListener("click", () => {
+  if (adminCurrentPage > 1) {
+    loadAdminRows(adminCurrentPage - 1);
+  }
+});
+adminNextPageButton.addEventListener("click", () => {
+  if (adminCurrentPage < adminTotalPages) {
+    loadAdminRows(adminCurrentPage + 1);
+  }
 });
 updateAuthButtons();
 

@@ -61,15 +61,35 @@
   }
 
   .landing-header {
-    @apply bg-white/80;
+    @apply grid grid-cols-[minmax(0,1fr)_auto] border-brand-100 bg-white/95 py-2 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)];
+    box-shadow: 0 10px 32px rgba(6, 78, 59, 0.08);
+  }
+
+  .landing-brand {
+    @apply inline-flex w-fit items-center rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+  }
+
+  .landing-brand img {
+    @apply h-11 w-auto max-w-[11rem] rounded-lg object-contain md:h-14 md:max-w-[14rem];
+  }
+
+  .landing-header .topbar-button {
+    @apply justify-self-end rounded-full px-5;
+  }
+
+  .app-brand-logo {
+    @apply inline-flex w-fit items-center rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+  }
+
+  .app-brand-logo img {
+    @apply h-11 w-auto max-w-[11rem] rounded-lg object-contain md:h-12 md:max-w-[13rem];
   }
 
   .brand {
     @apply grid min-w-0 grid-cols-[2.75rem_minmax(0,1fr)] items-center gap-x-3;
   }
 
-  .brand-mark,
-  .login-mark {
+  .brand-mark {
     @apply grid place-items-center rounded-lg bg-brand-700 text-sm font-semibold tracking-wide text-white shadow-sm;
   }
 
@@ -90,11 +110,11 @@
   }
 
   .landing-nav {
-    @apply hidden items-center justify-center gap-1 rounded-full border border-slate-200 bg-white/70 p-1 shadow-sm md:flex;
+    @apply hidden items-center justify-center gap-1 rounded-full border border-brand-100 bg-white p-1.5 shadow-sm md:flex;
   }
 
   .landing-nav-link {
-    @apply inline-flex items-center justify-center rounded-xl px-3 py-1.5 text-sm font-medium text-slate-600 transition duration-200 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition duration-200 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
   }
 
   .landing-nav-link:hover {
@@ -140,38 +160,179 @@
   }
 
   .landing-hero {
-    @apply relative grid min-h-[calc(100vh-4.5rem)] overflow-hidden px-4 py-10 md:px-8 lg:items-center lg:px-12 xl:px-16;
+    @apply relative grid min-h-[calc(100vh-4.5rem)] overflow-hidden px-4 py-14 md:px-8 lg:items-center lg:px-12 xl:px-16;
     background-image:
-      linear-gradient(90deg, rgba(2, 44, 34, 0.86), rgba(15, 23, 42, 0.56)),
+      linear-gradient(90deg, rgba(2, 44, 34, 0.94), rgba(6, 78, 59, 0.72) 52%, rgba(15, 23, 42, 0.5)),
       url("../images/unand.jpg");
     background-position: center;
     background-size: cover;
   }
 
+  .landing-hero::before {
+    content: "";
+    @apply pointer-events-none absolute inset-0;
+    background:
+      radial-gradient(circle at 78% 38%, rgba(52, 211, 153, 0.18), transparent 24rem),
+      linear-gradient(180deg, rgba(15, 23, 42, 0.08), rgba(2, 44, 34, 0.28));
+  }
+
   .landing-hero::after {
     content: "";
-    @apply pointer-events-none absolute inset-x-0 bottom-0 h-24;
-    background: linear-gradient(180deg, transparent, #f8fafc);
+    @apply pointer-events-none absolute inset-x-0 bottom-0 h-20;
+    background: linear-gradient(180deg, transparent, rgba(248, 250, 252, 0.96));
+  }
+
+  .landing-hero-content {
+    @apply relative z-10 mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.7fr)];
   }
 
   .landing-hero-copy {
-    @apply relative z-10;
+    @apply max-w-3xl text-white;
   }
 
-  .landing-hero-copy {
-    @apply max-w-4xl text-white;
+  .hero-badge {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium uppercase tracking-[0.14em] text-emerald-50 backdrop-blur-md;
   }
 
-  .landing-hero-copy .eyebrow {
-    @apply text-emerald-100;
+  .hero-badge i {
+    @apply h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_0_5px_rgba(110,231,183,0.14)];
   }
 
   .landing-hero-copy h1 {
-    @apply mt-4 max-w-4xl text-4xl font-semibold leading-tight tracking-normal md:text-5xl xl:text-6xl;
+    @apply mt-6 max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight md:text-5xl xl:text-6xl;
+  }
+
+  .landing-hero-copy h1 span {
+    @apply text-emerald-300;
   }
 
   .landing-hero-copy p {
-    @apply mt-5 max-w-2xl text-base leading-8 text-emerald-50/90 md:text-lg;
+    @apply mt-6 max-w-2xl text-base leading-8 text-emerald-50/80 md:text-lg;
+  }
+
+  .hero-actions {
+    @apply mt-8 flex flex-wrap items-center gap-3;
+  }
+
+  .hero-primary-action,
+  .hero-secondary-action {
+    @apply inline-flex items-center justify-center gap-3 rounded-xl px-5 py-3 text-sm font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-brand-900;
+  }
+
+  .hero-primary-action {
+    @apply bg-white text-brand-900 shadow-lift hover:-translate-y-0.5 hover:bg-emerald-50;
+  }
+
+  .hero-primary-action span {
+    @apply text-lg leading-none transition-transform duration-200;
+  }
+
+  .hero-primary-action:hover span {
+    @apply translate-x-1;
+  }
+
+  .hero-secondary-action {
+    @apply border border-white/25 bg-white/10 text-white backdrop-blur-md hover:-translate-y-0.5 hover:bg-white/20;
+  }
+
+  .hero-feature-list {
+    @apply mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-emerald-50/75;
+  }
+
+  .hero-feature-list span {
+    @apply inline-flex items-center gap-2;
+  }
+
+  .hero-feature-list span::before {
+    content: "";
+    @apply h-1.5 w-1.5 rounded-full bg-emerald-300;
+  }
+
+  .hero-insight-card {
+    @apply hidden overflow-hidden rounded-2xl border border-white/20 bg-slate-950/35 p-4 text-white shadow-lift backdrop-blur-xl lg:block;
+  }
+
+  .hero-insight-header {
+    @apply flex items-center justify-between px-1 pb-4;
+  }
+
+  .hero-insight-header div {
+    @apply grid gap-1;
+  }
+
+  .hero-insight-header small,
+  .hero-insight-stats small,
+  .hero-map-label small {
+    @apply text-xs text-emerald-50/60;
+  }
+
+  .hero-insight-header strong {
+    @apply text-base font-semibold;
+  }
+
+  .hero-insight-header > span {
+    @apply rounded-full border border-emerald-300/30 bg-emerald-300/10 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-emerald-200;
+  }
+
+  .hero-insight-map {
+    @apply relative h-64 overflow-hidden rounded-xl border border-white/10 bg-emerald-950/70;
+    background:
+      radial-gradient(circle at 68% 35%, rgba(52, 211, 153, 0.24), transparent 8rem),
+      linear-gradient(145deg, rgba(6, 95, 70, 0.68), rgba(15, 23, 42, 0.88));
+  }
+
+  .hero-map-grid {
+    @apply absolute inset-0 opacity-20;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+    background-size: 2.5rem 2.5rem;
+  }
+
+  .hero-map-shape {
+    @apply absolute inset-x-5 top-7 h-44 w-[calc(100%-2.5rem)] fill-emerald-200/15 stroke-emerald-100/25;
+    stroke-width: 2;
+  }
+
+  .hero-map-point {
+    @apply absolute grid h-8 w-8 place-items-center rounded-full border border-emerald-200/30 bg-emerald-300/15 shadow-[0_0_0_8px_rgba(52,211,153,0.09)] backdrop-blur-sm;
+  }
+
+  .hero-map-point svg {
+    @apply h-5 w-5 fill-emerald-300 stroke-white;
+    stroke-width: 1.5;
+  }
+
+  .hero-map-point.point-one {
+    @apply left-[25%] top-[34%];
+  }
+
+  .hero-map-point.point-two {
+    @apply right-[26%] top-[27%];
+  }
+
+  .hero-map-point.point-three {
+    @apply bottom-[24%] left-[54%];
+  }
+
+  .hero-map-label {
+    @apply absolute bottom-4 left-4 grid gap-1 rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2 backdrop-blur;
+  }
+
+  .hero-map-label strong {
+    @apply text-sm font-semibold;
+  }
+
+  .hero-insight-stats {
+    @apply mt-3 grid grid-cols-2 gap-3;
+  }
+
+  .hero-insight-stats div {
+    @apply grid gap-1 rounded-xl border border-white/10 bg-white/5 p-3;
+  }
+
+  .hero-insight-stats strong {
+    @apply text-sm font-semibold;
   }
 
   .landing-card-grid article,
@@ -254,11 +415,19 @@
   }
 
   .team-grid {
-    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-6;
   }
 
   .team-card {
-    @apply grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-1;
+    @apply grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-1 lg:col-span-2;
+  }
+
+  .team-card:nth-child(4) {
+    @apply lg:col-start-2;
+  }
+
+  .team-card:nth-child(5) {
+    @apply lg:col-start-4;
   }
 
   .team-card img {
@@ -723,6 +892,14 @@
     @apply flex flex-wrap items-center justify-end gap-2;
   }
 
+  .manual-geocoding-action {
+    @apply flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .manual-geocoding-action .secondary-action {
+    @apply shrink-0 self-start sm:self-auto;
+  }
+
   .file-upload-box,
   .geocoding-panel,
   .form-section,
@@ -827,15 +1004,11 @@
   }
 
   .login-brand {
-    @apply mb-5 flex items-center gap-4;
+    @apply mb-6 flex justify-center border-b border-slate-200 pb-5;
   }
 
-  .login-mark {
-    @apply h-12 w-12 overflow-hidden rounded-lg bg-slate-900;
-  }
-
-  .login-mark img {
-    @apply h-full w-full object-cover;
+  .login-brand img {
+    @apply h-auto w-full max-w-xs rounded-xl object-contain;
   }
 
   .login-field {
@@ -895,6 +1068,38 @@
 
   .admin-table-actions {
     @apply flex flex-col gap-2 sm:flex-row sm:items-center;
+  }
+
+  .admin-filter-bar {
+    @apply mb-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-3 sm:grid-cols-2 xl:grid-cols-[repeat(3,minmax(10rem,1fr))_auto] xl:items-end;
+  }
+
+  .admin-filter-bar label {
+    @apply grid gap-1.5 text-xs font-semibold text-slate-500;
+  }
+
+  .admin-filter-bar select {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 shadow-sm outline-none transition duration-200 focus:border-brand-300 focus:ring-4 focus:ring-brand-100;
+  }
+
+  .admin-reset-filter {
+    @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition duration-200 hover:border-brand-200 hover:bg-brand-50 hover:text-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+  }
+
+  .admin-table-pagination {
+    @apply mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .admin-pagination-actions {
+    @apply flex items-center gap-2;
+  }
+
+  .pagination-icon-button {
+    @apply grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:bg-brand-50 hover:text-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-300 disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:border-slate-200;
+  }
+
+  .pagination-icon-button svg {
+    @apply h-5 w-5;
   }
 
   .admin-table-status {
