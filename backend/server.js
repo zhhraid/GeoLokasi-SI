@@ -5,6 +5,8 @@ const adminRoutes = require("./routes/admin");
 const authRoutes = require("./routes/auth");
 const mahasiswaRoutes = require("./routes/mahasiswa");
 const statsRoutes = require("./routes/stats");
+const pool = require("./db");
+const { initializeDatabase } = require("./database-bootstrap");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +40,19 @@ app.get(/^\/(?!api(?:\/|$)).*/, (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
-app.listen(PORT, () => {
-  console.log(`GeoSIS backend running on port ${PORT}`);
+async function startServer() {
+  const dbStatus = await initializeDatabase(pool);
+
+  console.log(
+    `GeoSIS database ready: ${dbStatus.total} rows, ${dbStatus.complete} complete, ${dbStatus.seeded} seeded.`,
+  );
+
+  app.listen(PORT, () => {
+    console.log(`GeoSIS backend running on port ${PORT}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error("GeoSIS failed to start:", error);
+  process.exit(1);
 });
