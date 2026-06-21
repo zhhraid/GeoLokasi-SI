@@ -1,23 +1,26 @@
-let latestDashboardSummary = null;
+﻿let latestDashboardSummary = null;
 let latestRankingRows = [];
 let trendChartInstance = null;
 let rankingChartInstance = null;
 let jalurChartInstance = null;
+let wilayahChartInstance = null;
 let latestAutoReport = "";
 
 async function loadDashboard() {
   try {
-    const [summaryResponse, rankingResponse] = await Promise.all([
+    const [summaryResponse, rankingResponse, wilayahResponse] = await Promise.all([
       fetch(`${API_BASE_URL}/stats/summary`),
       fetch(`${API_BASE_URL}/stats/ranking-daerah`),
+      fetch(`${API_BASE_URL}/stats/wilayah-summary`),
     ]);
 
-    if (!summaryResponse.ok || !rankingResponse.ok) {
+    if (!summaryResponse.ok || !rankingResponse.ok || !wilayahResponse.ok) {
       throw new Error("Respons statistik tidak valid");
     }
 
     const summary = await summaryResponse.json();
     const ranking = await rankingResponse.json();
+    const wilayah = await wilayahResponse.json();
     latestDashboardSummary = summary;
     latestRankingRows = ranking || [];
 
@@ -25,8 +28,10 @@ async function loadDashboard() {
     renderTrend(summary.trenAngkatan || []);
     renderJalurChart(summary.jalurMasuk || []);
     renderRanking(ranking || []);
-    renderDashboardKpis(summary, ranking || []);
-    renderDashboardInsights(summary, ranking || []);
+    renderWilayahChart(wilayah.kotaKabupaten || []);
+    renderDashboardKpis(summary, ranking || [], wilayah);
+    renderDashboardInsights(summary, ranking || [], wilayah);
+    renderRegionInsights(wilayah);
     document.getElementById("data-status").textContent = "Aktif";
   } catch (error) {
     document.getElementById("data-status").textContent = "Error";
@@ -181,6 +186,53 @@ function renderRanking(rows) {
   });
 }
 
+
+function renderWilayahChart(rows) {
+  const canvas = document.getElementById("wilayah-chart");
+
+  if (!window.Chart || !canvas) {
+    return;
+  }
+
+  if (wilayahChartInstance) {
+    wilayahChartInstance.destroy();
+  }
+
+  const filteredRows = rows
+    .filter((row) => isValidRegionLabel(row.wilayah))
+    .slice(0, 8);
+
+  wilayahChartInstance = new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: filteredRows.map((row) => row.wilayah || "-"),
+      datasets: [
+        {
+          label: "Jumlah Mahasiswa",
+          data: filteredRows.map((row) => Number(row.total)),
+          backgroundColor: filteredRows.map((_, index) => {
+            const alpha = Math.max(0.34, 0.92 - index * 0.07).toFixed(2);
+            return `rgba(15, 118, 110, ${alpha})`;
+          }),
+          borderColor: "#0f766e",
+          borderWidth: 1,
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+      ],
+    },
+    options: getChartOptions({
+      indexAxis: "y",
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        x: { beginAtZero: true, ticks: { precision: 0 } },
+        y: { grid: { display: false } },
+      },
+    }),
+  });
+}
 function formatReportDate(date = new Date()) {
   return new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
@@ -241,7 +293,7 @@ function getChartOptions(overrides = {}) {
   };
 }
 
-function buildAutomaticReport(summary, rankingRows) {
+function buildAutomaticReport(summary, rankingRows, wilayah = {}) {
   const trenAngkatan = summary.trenAngkatan || [];
   const jalurMasuk = summary.jalurMasuk || [];
   const totalMahasiswa = Number(summary.totalMahasiswa || 0);
@@ -256,6 +308,8 @@ function buildAutomaticReport(summary, rankingRows) {
     (a, b) => Number(b.total) - Number(a.total),
   )[0];
   const topSchool = rankingRows[0];
+  const topProvince = (wilayah.provinsi || []).find((row) => isValidRegionLabel(row.provinsi));
+  const topCity = (wilayah.kotaKabupaten || []).find((row) => isValidRegionLabel(row.wilayah));
   const latestYear = trenAngkatan[trenAngkatan.length - 1];
   const previousYear = trenAngkatan[trenAngkatan.length - 2];
   const latestDelta =
@@ -290,12 +344,18 @@ function buildAutomaticReport(summary, rankingRows) {
       topSchool
         ? `Sekolah terbesar: ${topSchool.asal_sekolah} (${topSchool.total} mahasiswa).`
         : "",
+      topProvince
+        ? `Provinsi dominan: ${topProvince.provinsi} (${topProvince.total} mahasiswa).`
+        : "",
+      topCity
+        ? `Kota/kabupaten dominan: ${topCity.wilayah} (${topCity.total} mahasiswa).`
+        : "",
     ].filter(Boolean),
   };
 }
 
-function renderDashboardKpis(summary, rankingRows) {
-  const report = buildAutomaticReport(summary, rankingRows);
+function renderDashboardKpis(summary, rankingRows, wilayah = {}) {
+  const report = buildAutomaticReport(summary, rankingRows, wilayah);
   latestAutoReport = report.paragraphs.join("\n");
 
   document.getElementById("kpi-top-angkatan").textContent =
@@ -316,6 +376,23 @@ function renderDashboardKpis(summary, rankingRows) {
     report.topSchool
       ? `${report.topSchool.total} mahasiswa`
       : "Data belum tersedia";
+
+  const topProvince = (wilayah.provinsi || []).find((row) => isValidRegionLabel(row.provinsi));
+  const topCity = (wilayah.kotaKabupaten || []).find((row) => isValidRegionLabel(row.wilayah));
+
+  document.getElementById("kpi-top-province").textContent = topProvince?.provinsi || "-";
+  document.getElementById("kpi-top-province-detail").textContent = topProvince
+    ? `${topProvince.total} mahasiswa`
+    : "Data belum tersedia";
+  document.getElementById("kpi-top-city").textContent = topCity?.wilayah || "-";
+  document.getElementById("kpi-top-city-detail").textContent = topCity
+    ? `${topCity.total} mahasiswa`
+    : "Data belum tersedia";
+}
+
+function isValidRegionLabel(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  return normalized && !["belum teridentifikasi", "belum tersedia", "-"].includes(normalized);
 }
 
 function formatPercent(value) {
@@ -323,18 +400,14 @@ function formatPercent(value) {
   return Number.isFinite(number) ? `${number.toFixed(1).replace(".0", "")}%` : "-";
 }
 
-function renderDashboardInsights(summary, rankingRows) {
-  const report = buildAutomaticReport(summary, rankingRows);
+function renderDashboardInsights(summary, rankingRows, wilayah = {}) {
+  const report = buildAutomaticReport(summary, rankingRows, wilayah);
   const trenAngkatan = summary.trenAngkatan || [];
   const jalurMasuk = summary.jalurMasuk || [];
   const totalMahasiswa = Number(summary.totalMahasiswa || 0);
   const averagePerCohort = report.totalAngkatan
     ? Math.round(totalMahasiswa / report.totalAngkatan)
     : 0;
-  const topFiveTotal = rankingRows
-    .slice(0, 5)
-    .reduce((sum, row) => sum + Number(row.total || 0), 0);
-  const topSchoolShare = totalMahasiswa ? (topFiveTotal / totalMahasiswa) * 100 : 0;
   const topJalurShare =
     totalMahasiswa && report.topJalur
       ? (Number(report.topJalur.total || 0) / totalMahasiswa) * 100
@@ -350,12 +423,6 @@ function renderDashboardInsights(summary, rankingRows) {
     report.totalAngkatan
       ? `dari ${report.totalAngkatan} angkatan`
       : "Data belum tersedia";
-  document.getElementById("insight-top-school-share").textContent =
-    formatPercent(topSchoolShare);
-  document.getElementById("insight-top-school-share-detail").textContent =
-    topFiveTotal
-      ? `${topFiveTotal} mahasiswa`
-      : "Data belum tersedia";
   document.getElementById("insight-top-jalur-share").textContent =
     formatPercent(topJalurShare);
   document.getElementById("insight-top-jalur-share-detail").textContent =
@@ -368,6 +435,12 @@ function renderDashboardInsights(summary, rankingRows) {
       ? `${report.latestTrend} sejak ${report.previousYear.angkatan}`
       : "Data belum tersedia";
 
+  const sumbarRow = (wilayah.sumbarVsLuar || []).find((row) => row.kategori === "Sumatera Barat");
+  const sumbarShare = totalMahasiswa ? (Number(sumbarRow?.total || 0) / totalMahasiswa) * 100 : 0;
+  document.getElementById("insight-sumbar-share").textContent = formatPercent(sumbarShare);
+  document.getElementById("insight-sumbar-share-detail").textContent = sumbarRow
+    ? `${sumbarRow.total} mahasiswa teridentifikasi`
+    : "Data belum tersedia";
   renderTopSchoolList(rankingRows, totalMahasiswa);
 }
 
@@ -404,6 +477,56 @@ function renderTopSchoolList(rows, totalMahasiswa) {
     .join("");
 }
 
+function renderRegionInsights(wilayah = {}) {
+  const summaryContainer = document.getElementById("region-summary-list");
+  const jalurContainer = document.getElementById("jalur-region-list");
+  const totalMahasiswa = Number(wilayah.totalMahasiswa || 0);
+  const topProvinces = (wilayah.provinsi || [])
+    .filter((row) => isValidRegionLabel(row.provinsi))
+    .slice(0, 4);
+  const jalurRows = (wilayah.jalurDominanWilayah || [])
+    .filter((row) => isValidRegionLabel(row.wilayah))
+    .slice(0, 5);
+
+  if (!topProvinces.length) {
+    summaryContainer.innerHTML = '<p class="admin-message">Data provinsi belum tersedia.</p>';
+  } else {
+    summaryContainer.innerHTML = topProvinces
+      .map((row) => {
+        const share = totalMahasiswa ? (Number(row.total || 0) / totalMahasiswa) * 100 : 0;
+
+        return `
+          <article class="region-summary-item">
+            <div>
+              <span>${escapeReportHtml(row.provinsi)}</span>
+              <strong>${row.total} mahasiswa</strong>
+            </div>
+            <small>${formatPercent(share)} dari total data</small>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  if (!jalurRows.length) {
+    jalurContainer.innerHTML = '<p class="admin-message">Wilayah dominan per jalur belum tersedia.</p>';
+    return;
+  }
+
+  jalurContainer.innerHTML = `
+    ${jalurRows
+      .map(
+        (row) => `
+        <article class="jalur-region-item">
+          <span>${escapeReportHtml(row.jalur_masuk)}</span>
+          <strong>${escapeReportHtml(row.wilayah)}</strong>
+          <small>${row.total} mahasiswa</small>
+        </article>
+      `,
+      )
+      .join("")}
+  `;
+}
 
 function buildFilteredReportData(rows) {
   const countBy = (key, fallback = "Belum tersedia") => {
@@ -810,7 +933,7 @@ function buildReportHtml(summary, rankingRows, options = {}) {
       ` : ""}
 
       <div class="footer">
-        Laporan dibuat otomatis dari database WebGIS · Data per tanggal export.
+        Laporan dibuat otomatis dari database WebGIS Â· Data per tanggal export.
       </div>
       </main>
 
@@ -962,3 +1085,4 @@ document
   .addEventListener("click", exportDashboardReport);
 
 loadDashboard();
+

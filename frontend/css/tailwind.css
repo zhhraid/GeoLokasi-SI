@@ -668,7 +668,7 @@
   }
 
   .dashboard-metrics {
-    @apply xl:grid-cols-5;
+    @apply lg:grid-cols-4 2xl:grid-cols-7;
   }
 
   .admin-metrics {
@@ -736,13 +736,37 @@
     @apply xl:grid-cols-1;
   }
 
+  .dashboard-lower {
+    @apply grid gap-5;
+  }
+
+  .dashboard-row {
+    @apply grid items-start gap-5;
+  }
+
+  .dashboard-row-three {
+    @apply md:grid-cols-2 xl:grid-cols-[minmax(15rem,0.75fr)_minmax(0,1.15fr)_minmax(22rem,0.95fr)];
+  }
+
+  .dashboard-row-two {
+    @apply lg:grid-cols-2;
+  }
+
+  .lower-chart-card {
+    @apply min-h-0 p-4 md:p-5;
+  }
+
   .dashboard-card,
   .compact-dashboard-card {
     @apply min-h-[16rem] p-4 md:p-5;
   }
 
-  .school-focus-card {
+  .dashboard-card.lower-chart-card {
     @apply min-h-0;
+  }
+
+  .school-focus-card {
+    @apply min-h-0 p-4 md:p-5;
   }
 
   .section-title {
@@ -754,7 +778,19 @@
   }
 
   .chart-box-small {
-    @apply h-[14rem] md:h-[16rem];
+    @apply h-[13rem] md:h-[14rem];
+  }
+
+  .chart-box-medium {
+    @apply h-[16rem] md:h-[18rem];
+  }
+
+  .chart-box-lower {
+    @apply h-64 md:h-72;
+  }
+
+  .jalur-chart-card {
+    @apply min-h-0;
   }
 
   .top-school-list {
@@ -1490,5 +1526,87 @@
     .map-area {
       order: 1;
     }
+  }
+}
+
+@layer components {
+  .region-dashboard-grid {
+    @apply xl:grid-cols-[minmax(0,1.05fr)_minmax(22rem,0.95fr)];
+  }
+
+  .region-insight-card {
+    @apply grid content-start gap-4;
+  }
+
+  .region-summary-list,
+  .jalur-region-list {
+    @apply grid gap-3;
+  }
+
+  .region-summary-item,
+  .jalur-region-item {
+    @apply rounded-lg border border-slate-200 bg-slate-50/75 p-3 transition duration-200 hover:border-brand-200 hover:bg-white hover:shadow-soft;
+  }
+
+  .region-summary-item {
+    @apply flex items-start justify-between gap-3;
+  }
+
+  .compact-region-card {
+    @apply gap-3;
+  }
+
+  .compact-region-card .section-title {
+    @apply mb-2;
+  }
+
+  .compact-region-card .region-summary-list {
+    @apply gap-2;
+  }
+
+  .compact-region-card .region-summary-item {
+    @apply rounded-md px-3 py-2;
+  }
+
+  .compact-region-card .region-summary-item strong {
+    @apply mt-0 text-[13px] leading-5;
+  }
+
+  .compact-region-card .region-summary-item small {
+    @apply text-xs leading-5;
+  }
+
+  .region-summary-item span,
+  .jalur-region-item span,
+  .region-subtitle {
+    @apply text-xs font-medium uppercase tracking-[0.14em] text-brand-700;
+  }
+
+  .region-summary-item strong,
+  .jalur-region-item strong {
+    @apply mt-1 block text-sm font-semibold text-slate-900;
+  }
+
+  .region-summary-item small,
+  .jalur-region-item small {
+    @apply text-sm leading-6 text-slate-500;
+  }
+
+  .jalur-region-item {
+    @apply grid gap-1;
+  }
+
+  .region-subtitle {
+    @apply mt-1 text-slate-500;
+  }
+}
+
+@layer components {
+  .region-side-stack {
+    @apply grid gap-5 lg:col-span-2 xl:col-span-1;
+  }
+
+  .region-insight-card {
+    @apply min-h-0 p-4 md:p-5;
   }
 }

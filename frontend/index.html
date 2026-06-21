@@ -509,6 +509,16 @@
               <strong id="kpi-top-school">-</strong>
               <small id="kpi-top-school-detail">Data belum tersedia</small>
             </article>
+            <article class="metric-card">
+              <span>Provinsi Dominan</span>
+              <strong id="kpi-top-province">-</strong>
+              <small id="kpi-top-province-detail">Data belum tersedia</small>
+            </article>
+            <article class="metric-card">
+              <span>Kota/Kab. Dominan</span>
+              <strong id="kpi-top-city">-</strong>
+              <small id="kpi-top-city-detail">Data belum tersedia</small>
+            </article>
           </div>
 
           <section class="panel insight-panel">
@@ -520,13 +530,6 @@
                 <small id="insight-average-cohort-detail">Menunggu data</small>
               </article>
               <article>
-                <span>Konsentrasi Top 5 Sekolah</span>
-                <strong id="insight-top-school-share">-</strong>
-                <small id="insight-top-school-share-detail"
-                  >Menunggu data</small
-                >
-              </article>
-              <article>
                 <span>Porsi Jalur Dominan</span>
                 <strong id="insight-top-jalur-share">-</strong>
                 <small id="insight-top-jalur-share-detail">Menunggu data</small>
@@ -535,6 +538,11 @@
                 <span>Perubahan Angkatan Terbaru</span>
                 <strong id="insight-latest-delta">-</strong>
                 <small id="insight-latest-delta-detail">Menunggu data</small>
+              </article>
+              <article>
+                <span>Porsi Sumatera Barat</span>
+                <strong id="insight-sumbar-share">-</strong>
+                <small id="insight-sumbar-share-detail">Menunggu data</small>
               </article>
             </div>
 
@@ -555,22 +563,46 @@
               </div>
             </section>
           </div>
+          <div class="dashboard-lower">
+            <div class="dashboard-row dashboard-row-three">
+              <section class="panel dashboard-card lower-chart-card">
+                <div class="section-title">Distribusi Jalur Masuk</div>
+                <div class="chart-box chart-box-lower">
+                  <canvas id="jalur-chart"></canvas>
+                </div>
+              </section>
 
-          <div class="dashboard-grid secondary-dashboard-grid">
-            <section class="panel dashboard-card compact-dashboard-card">
-              <div class="section-title">Distribusi Jalur Masuk</div>
-              <div class="chart-box chart-box-small">
-                <canvas id="jalur-chart"></canvas>
-              </div>
-            </section>
-          </div>
+              <section class="panel dashboard-card lower-chart-card">
+                <div class="section-title">Top Kota/Kabupaten Asal</div>
+                <div class="chart-box chart-box-lower">
+                  <canvas id="wilayah-chart"></canvas>
+                </div>
+              </section>
 
-          <section class="panel dashboard-card school-focus-card">
-            <div class="section-title">Sekolah Penyumbang Teratas</div>
-            <div id="top-school-list" class="top-school-list">
-              <p class="admin-message">Menunggu data ranking asal sekolah.</p>
+              <section class="panel dashboard-card region-insight-card compact-region-card">
+                <div class="section-title">Provinsi Asal Teratas</div>
+                <div id="region-summary-list" class="region-summary-list">
+                  <p class="admin-message">Menunggu statistik wilayah.</p>
+                </div>
+              </section>
             </div>
-          </section>
+
+            <div class="dashboard-row dashboard-row-two">
+              <section class="panel dashboard-card region-insight-card">
+                <div class="section-title">Wilayah Terbanyak per Jalur</div>
+                <div id="jalur-region-list" class="jalur-region-list">
+                  <p class="admin-message">Menunggu wilayah dominan per jalur.</p>
+                </div>
+              </section>
+
+              <section class="panel dashboard-card school-focus-card">
+                <div class="section-title">Sekolah Penyumbang Teratas</div>
+                <div id="top-school-list" class="top-school-list">
+                  <p class="admin-message">Menunggu data ranking asal sekolah.</p>
+                </div>
+              </section>
+            </div>
+          </div>
         </section>
 
         <section

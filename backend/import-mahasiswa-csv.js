@@ -63,6 +63,8 @@ async function main() {
     )
   `);
   await connection.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS alamat TEXT");
+  await connection.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS provinsi TEXT");
+  await connection.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS kota_kabupaten TEXT");
 
   const csv = fs.readFileSync(CSV_PATH, "utf8").trim();
   const rows = parseMahasiswaCsv(csv).map((row) => INSERT_COLUMNS.map((column) => row[column]));
@@ -98,6 +100,14 @@ async function main() {
     const updateSql = fs.readFileSync(updateSqlPath, "utf8");
     await connection.query(updateSql);
     console.log("Alamat mahasiswa berhasil diperbarui secara otomatis!");
+  }
+
+  const wilayahSqlPath = path.join(__dirname, "update_wilayah_mahasiswa.sql");
+  if (fs.existsSync(wilayahSqlPath)) {
+    console.log("Menjalankan update_wilayah_mahasiswa.sql untuk melengkapi provinsi dan kota/kabupaten...");
+    const wilayahSql = fs.readFileSync(wilayahSqlPath, "utf8");
+    await connection.query(wilayahSql);
+    console.log("Wilayah mahasiswa berhasil diperbarui secara otomatis!");
   }
 
   await connection.end();

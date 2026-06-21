@@ -4,6 +4,7 @@ const { parseMahasiswaCsv } = require("./mahasiswa-utils");
 const { hashPassword } = require("./password-utils");
 
 const SEED_PATH = path.join(__dirname, "seed-mahasiswa.csv");
+const WILAYAH_UPDATE_PATH = path.join(__dirname, "update_wilayah_mahasiswa.sql");
 const INSERT_BATCH_SIZE = 1000;
 const COLUMNS = [
   "id",
@@ -16,6 +17,8 @@ const COLUMNS = [
   "longitude",
   "latitude",
   "jalur_masuk",
+  "provinsi",
+  "kota_kabupaten",
 ];
 const USER_SEEDS = [
   { email: "admin@gmail.com", password: "admin123", role: "admin", name: "Admin", nim: null },
@@ -68,13 +71,17 @@ async function ensureSchema(client) {
       alamat TEXT,
       longitude NUMERIC(12,8),
       latitude NUMERIC(12,8),
-      jalur_masuk VARCHAR(20) NULL
+      jalur_masuk VARCHAR(20) NULL,
+      provinsi TEXT,
+      kota_kabupaten TEXT
     )
   `);
 
   await client.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS alamat TEXT");
   await client.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS longitude NUMERIC(12,8)");
   await client.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS latitude NUMERIC(12,8)");
+  await client.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS provinsi TEXT");
+  await client.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS kota_kabupaten TEXT");
   await client.query("CREATE INDEX IF NOT EXISTS mahasiswa_no_bp_idx ON mahasiswa (no_bp)");
   await client.query("CREATE INDEX IF NOT EXISTS mahasiswa_angkatan_idx ON mahasiswa (angkatan)");
 
@@ -150,10 +157,21 @@ async function upsertSeedBatch(client, rows) {
         alamat = COALESCE(NULLIF(mahasiswa.alamat, ''), EXCLUDED.alamat),
         longitude = COALESCE(mahasiswa.longitude, EXCLUDED.longitude),
         latitude = COALESCE(mahasiswa.latitude, EXCLUDED.latitude),
-        jalur_masuk = COALESCE(NULLIF(mahasiswa.jalur_masuk, ''), EXCLUDED.jalur_masuk)
+        jalur_masuk = COALESCE(NULLIF(mahasiswa.jalur_masuk, ''), EXCLUDED.jalur_masuk),
+        provinsi = COALESCE(NULLIF(mahasiswa.provinsi, ''), EXCLUDED.provinsi),
+        kota_kabupaten = COALESCE(NULLIF(mahasiswa.kota_kabupaten, ''), EXCLUDED.kota_kabupaten)
     `,
     values
   );
+}
+
+async function applyWilayahUpdate(client) {
+  if (!fs.existsSync(WILAYAH_UPDATE_PATH)) {
+    return false;
+  }
+
+  await client.query(fs.readFileSync(WILAYAH_UPDATE_PATH, "utf8"));
+  return true;
 }
 
 async function initializeDatabase(pool) {
@@ -175,6 +193,8 @@ async function initializeDatabase(pool) {
 
       seeded = seedRows.length;
     }
+
+    await applyWilayahUpdate(client);
 
     await client.query("COMMIT");
 

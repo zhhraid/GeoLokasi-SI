@@ -158,6 +158,8 @@ function normalizeMahasiswaRow(row) {
     longitude: normalizeCoordinate(row.longitude || row.x, "longitude"),
     latitude: normalizeCoordinate(row.latitude || row.y, "latitude"),
     jalur_masuk: String(row.jalur_masuk || row.jalurMasuk || getJalurMasuk(noBp) || "").trim() || null,
+    provinsi: String(row.provinsi || row.province || "").trim() || null,
+    kota_kabupaten: String(row.kota_kabupaten || row.kotaKabupaten || row.kabupaten_kota || row.city || "").trim() || null,
   };
 }
 
@@ -203,6 +205,12 @@ function normalizeCsvHeader(header) {
     asal_sekolah: "asal_sekolah",
     address: "alamat",
     alamat_rumah: "alamat",
+    provinsi: "provinsi",
+    province: "provinsi",
+    kota_kabupaten: "kota_kabupaten",
+    kabupaten_kota: "kota_kabupaten",
+    kota: "kota_kabupaten",
+    city: "kota_kabupaten",
   };
 
   return aliases[normalized] || normalized;
@@ -245,6 +253,8 @@ function parseMahasiswaCsv(csv) {
       longitude: getValueByHeaders(columns, headerIndex, ["longitude", "x"], fallback(7)),
       latitude: getValueByHeaders(columns, headerIndex, ["latitude", "y"], fallback(8)),
       jalur_masuk: getValueByHeaders(columns, headerIndex, "jalur_masuk", fallback(9)),
+      provinsi: getValueByHeaders(columns, headerIndex, "provinsi", fallback(10)),
+      kota_kabupaten: getValueByHeaders(columns, headerIndex, ["kota_kabupaten", "kabupaten_kota", "kota"], fallback(11)),
     })
   );
 }
