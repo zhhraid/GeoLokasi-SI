@@ -25,6 +25,11 @@ const manualLatitudeInput = document.getElementById("manual-latitude");
 const manualLongitudeInput = document.getElementById("manual-longitude");
 const manualGeocodingButton = document.getElementById("manual-geocoding-button");
 const manualGeocodingStatus = document.getElementById("manual-geocoding-status");
+const editAddressInput = document.getElementById("edit-alamat");
+const editLatitudeInput = document.getElementById("edit-latitude");
+const editLongitudeInput = document.getElementById("edit-longitude");
+const editGeocodingButton = document.getElementById("edit-geocoding-button");
+const editGeocodingStatus = document.getElementById("edit-geocoding-status");
 const PENDING_VIEW_KEY = "geosis_pending_view";
 let openAdminAfterLogin = false;
 let viewAfterLogin = null;
@@ -288,6 +293,7 @@ function openEditStudentModal(row) {
   });
   document.getElementById("edit-student-status").textContent =
     "Perbarui data lalu tekan Simpan Perubahan.";
+  editGeocodingStatus.textContent = "Tekan Geocoding Otomatis jika alamat berubah.";
   document.getElementById("edit-student-modal").classList.remove("hidden");
   document.body.classList.add("modal-open");
 }
@@ -581,6 +587,43 @@ manualAddressInput.addEventListener("input", () => {
   manualGeocodingStatus.textContent = "Alamat berubah. Tekan Geocoding Otomatis untuk memperbarui koordinat.";
 });
 
+editGeocodingButton.addEventListener("click", async () => {
+  const alamat = editAddressInput.value.trim();
+
+  if (!alamat) {
+    editGeocodingStatus.textContent = "Isi alamat terlebih dahulu.";
+    editAddressInput.focus();
+    return;
+  }
+
+  editGeocodingButton.disabled = true;
+  editGeocodingStatus.textContent = "Mencari koordinat alamat...";
+
+  try {
+    const coordinates = await adminRequest("/admin/geocode", {
+      method: "POST",
+      body: JSON.stringify({ alamat }),
+    });
+
+    editLatitudeInput.value = Number(coordinates.latitude).toFixed(8);
+    editLongitudeInput.value = Number(coordinates.longitude).toFixed(8);
+    editGeocodingStatus.textContent = coordinates.accuracy === "fallback"
+      ? "Alamat tidak dikenali. Koordinat memakai titik fallback Kota Padang; ubah manual jika tidak sesuai."
+      : coordinates.approximate
+        ? "Alamat lengkap tidak ditemukan. Koordinat menggunakan perkiraan wilayah terdekat; periksa hasilnya sebelum menyimpan."
+        : "Koordinat ditemukan. Simpan perubahan untuk menerapkan data baru.";
+  } catch (error) {
+    editGeocodingStatus.textContent = error.message;
+  } finally {
+    editGeocodingButton.disabled = false;
+  }
+});
+
+editAddressInput.addEventListener("input", () => {
+  editLatitudeInput.value = "";
+  editLongitudeInput.value = "";
+  editGeocodingStatus.textContent = "Alamat berubah. Tekan Geocoding Otomatis untuk memperbarui koordinat.";
+});
 document.getElementById("manual-student-form").addEventListener("submit", async (event) => {
   event.preventDefault();
 
