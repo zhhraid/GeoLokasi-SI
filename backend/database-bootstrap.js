@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { parseMahasiswaCsv } = require("./mahasiswa-utils");
+const { hashPassword } = require("./password-utils");
 
 const SEED_PATH = path.join(__dirname, "seed-mahasiswa.csv");
 const INSERT_BATCH_SIZE = 1000;
@@ -15,6 +16,44 @@ const COLUMNS = [
   "longitude",
   "latitude",
   "jalur_masuk",
+];
+const USER_SEEDS = [
+  { email: "admin@gmail.com", password: "admin123", role: "admin", name: "Admin", nim: null },
+  {
+    email: "2311521006_nayla@student.unand.ac.id",
+    password: "2311521006",
+    role: "user",
+    name: "Nayla",
+    nim: "2311521006",
+  },
+  {
+    email: "2311523006_zhahra@student.unand.ac.id",
+    password: "2311523006",
+    role: "user",
+    name: "Zhahra",
+    nim: "2311523006",
+  },
+  {
+    email: "2311523032_della@student.unand.ac.id",
+    password: "2311523032",
+    role: "user",
+    name: "Della",
+    nim: "2311523032",
+  },
+  {
+    email: "2311522010_kezia@student.unand.ac.id",
+    password: "2311522010",
+    role: "user",
+    name: "Kezia",
+    nim: "2311522010",
+  },
+  {
+    email: "2311522028_mashia@student.unand.ac.id",
+    password: "2311522028",
+    role: "user",
+    name: "Mashia",
+    nim: "2311522028",
+  },
 ];
 
 async function ensureSchema(client) {
@@ -38,6 +77,38 @@ async function ensureSchema(client) {
   await client.query("ALTER TABLE mahasiswa ADD COLUMN IF NOT EXISTS latitude NUMERIC(12,8)");
   await client.query("CREATE INDEX IF NOT EXISTS mahasiswa_no_bp_idx ON mahasiswa (no_bp)");
   await client.query("CREATE INDEX IF NOT EXISTS mahasiswa_angkatan_idx ON mahasiswa (angkatan)");
+
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id BIGSERIAL PRIMARY KEY,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      role VARCHAR(20) NOT NULL DEFAULT 'user',
+      name VARCHAR(150) NOT NULL,
+      nim VARCHAR(20) UNIQUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await client.query("CREATE INDEX IF NOT EXISTS users_role_idx ON users (role)");
+}
+
+async function seedUsers(client) {
+  for (const user of USER_SEEDS) {
+    await client.query(
+      `
+        INSERT INTO users (email, password_hash, role, name, nim)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (email) DO UPDATE SET
+          password_hash = EXCLUDED.password_hash,
+          role = EXCLUDED.role,
+          name = EXCLUDED.name,
+          nim = EXCLUDED.nim,
+          updated_at = CURRENT_TIMESTAMP
+      `,
+      [user.email, hashPassword(user.password), user.role, user.name, user.nim]
+    );
+  }
 }
 
 function readSeedRows() {
@@ -93,6 +164,7 @@ async function initializeDatabase(pool) {
   try {
     await client.query("BEGIN");
     await ensureSchema(client);
+    await seedUsers(client);
 
     const countResult = await client.query("SELECT COUNT(*) AS total FROM mahasiswa");
 
@@ -134,4 +206,5 @@ module.exports = {
   ensureSchema,
   initializeDatabase,
   readSeedRows,
+  seedUsers,
 };

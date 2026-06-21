@@ -1,26 +1,10 @@
 const crypto = require("crypto");
 const express = require("express");
-const loadEnv = require("../load-env");
-
-loadEnv();
+const pool = require("../db");
+const { verifyPassword } = require("../password-utils");
 
 const router = express.Router();
 const sessions = new Map();
-
-function getCredentials() {
-  return [
-    {
-      role: "admin",
-      username: process.env.ADMIN_USERNAME || "admin",
-      password: process.env.ADMIN_PASSWORD || "admin123",
-    },
-    {
-      role: "user",
-      username: process.env.USER_USERNAME || "user",
-      password: process.env.USER_PASSWORD || "user123",
-    },
-  ];
-}
 
 function getSession(req) {
   const header = req.get("Authorization") || "";
@@ -65,29 +49,47 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-router.post("/login", (req, res) => {
-  const { username, password } = req.body || {};
-  const account = getCredentials().find(
-    (credential) => username === credential.username && password === credential.password
-  );
+router.post("/login", async (req, res) => {
+  try {
+    const email = String(req.body?.email || "").trim().toLowerCase();
+    const password = String(req.body?.password || "");
 
-  if (!account) {
-    res.status(401).json({ message: "Username atau password salah" });
-    return;
+    if (!email || !password) {
+      res.status(400).json({ message: "Email dan password wajib diisi" });
+      return;
+    }
+
+    const result = await pool.query(
+      "SELECT id, email, password_hash, role, name, nim FROM users WHERE LOWER(email) = $1",
+      [email]
+    );
+    const account = result.rows[0];
+
+    if (!account || !verifyPassword(password, account.password_hash)) {
+      res.status(401).json({ message: "Email atau password salah" });
+      return;
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    sessions.set(token, {
+      createdAt: Date.now(),
+      role: account.role,
+      userId: account.id,
+      email: account.email,
+      name: account.name,
+      nim: account.nim,
+    });
+
+    res.json({
+      token,
+      email: account.email,
+      name: account.name,
+      nim: account.nim,
+      role: account.role,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Login gagal diproses", error: error.message });
   }
-
-  const token = crypto.randomBytes(32).toString("hex");
-  sessions.set(token, {
-    createdAt: Date.now(),
-    role: account.role,
-    username: account.username,
-  });
-
-  res.json({
-    token,
-    username: account.username,
-    role: account.role,
-  });
 });
 
 router.post("/logout", requireAuth, (req, res) => {

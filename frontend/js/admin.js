@@ -130,7 +130,7 @@ function showLoginModal(options = {}) {
   document.body.classList.add("modal-open");
   loginModal.classList.remove("hidden");
   loginStatus.textContent = "Masuk untuk membuka dashboard WebGIS.";
-  setTimeout(() => document.getElementById("admin-username").focus(), 50);
+  setTimeout(() => document.getElementById("login-email").focus(), 50);
 }
 
 function hideLoginModal() {
@@ -454,7 +454,7 @@ document.getElementById("admin-login-form").addEventListener("submit", async (ev
   loginStatus.textContent = "Memproses login...";
 
   const payload = {
-    username: document.getElementById("admin-username").value.trim(),
+    email: document.getElementById("login-email").value.trim(),
     password: document.getElementById("admin-password").value,
   };
 
